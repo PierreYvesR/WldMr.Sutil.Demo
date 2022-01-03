@@ -1,0 +1,59 @@
+@use "colors" as *;
+
+.horizontal-resize {
+  box-sizing: border-box;
+  height:100%;
+
+  >div {
+    box-sizing: border-box;
+    height: 100%;
+
+    cursor: ew-resize;
+
+    border-style: solid;
+    border-width: 1px 1px 1px 1px;
+    padding: 1px 1px 1px 1px;
+    border-radius: 4px;
+
+
+    border-color: $wm-bg3-color;
+    background-color: $wm-bg3-color;
+
+    >div {
+      box-sizing: border-box;
+      height: 100%;
+
+      border-style: solid;
+      border-width: 1px 1px 1px 1px;
+      border-radius: 2px;
+
+      width: 100%;
+      border-color: $wm-bg4-color;
+      background-color: $wm-bg5-color;
+
+      transition: inherit;
+      transition-delay: inherit;
+    }
+
+    &:hover {
+      transition: 0.2s;
+      transition-delay: 0.2s;
+
+      border-color: $wm-bg5-color;
+      background-color: $wm-bg5-5-color;
+      div {
+        border-color: $wm-bg6-color;
+        background-color: $wm-bg6-4-color;
+      }
+    }
+    &:active {
+      border-color: $wm-bg7-color;
+      background-color: $wm-bg7-5-color;
+      div {
+        border-color: $wm-bg8-color;
+        background-color: $wm-bg8-5-color;
+      }
+    }
+  }
+}
+

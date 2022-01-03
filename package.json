@@ -1,0 +1,46 @@
+{
+  "repository": {
+    "url": "https://github.com/PierreYvesR/Sutil.Demo.git"
+  },
+  "private": true,
+  "scripts": {
+    "postinstall": "dotnet tool restore && dotnet paket restore",
+    "start": "dotnet fable watch src/App --sourceMaps --outDir src/App/build --run webpack serve",
+    "build": "dotnet fable       src/App --sourceMaps --outDir src/App/build --run webpack --mode production",
+    "serveprod": "dotnet fable       src/App --sourceMaps --outDir src/App/build --run webpack --mode production && npx http-server dist -g"
+  },
+  "dependencies": {
+    "@vscode/codicons": "0.0.27",
+    "acorn": "^8.6.0",
+    "hotkeys-js": "^3.8.7",
+    "monaco-editor": "^0.31.1",
+    "monaco-editor-webpack-plugin": "^7.0.1",
+    "plotly.js": "^2.5.0",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-plotly.js": "^2.5.1",
+    "react-select": "^4.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.0",
+    "@types/react-dom": "^16.9.0",
+    "compression-webpack-plugin": "^9.2.0",
+    "copy-webpack-plugin": "^8.1.1",
+    "core-js": "^3.3.6",
+    "css-loader": "^5.2.7",
+    "esm": "^3.2.25",
+    "file-loader": "*",
+    "html-webpack-plugin": "^5.3.2",
+    "http-server": "^14.0.0",
+    "mocha": "^8.4.0",
+    "remotedev": "^0.2.9",
+    "sass": "^1.45.1",
+    "sass-loader": "^12.4.0",
+    "source-map-loader": "^2.0.2",
+    "style-loader": "^3.2.1",
+    "webpack": "^5.52.1",
+    "webpack-bundle-analyzer": "^4.5.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^4.1.1"
+  }
+}

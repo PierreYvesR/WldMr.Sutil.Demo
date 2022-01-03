@@ -1,0 +1,18 @@
+@use "colors" as *;
+
+.wm-button {
+  font-size: 14px;
+  font-family: 'Spartan', sans-serif;
+  border-radius: 6px;
+  padding: 3px 10px;
+
+  border-width: 2px;
+  border-color: $border-color;
+
+  @include defaultTextColor;
+  background-color: transparent;
+
+  @include wm-button-states;
+
+
+}

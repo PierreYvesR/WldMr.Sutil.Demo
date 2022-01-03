@@ -1,0 +1,99 @@
+@use "colors" as *;
+
+
+.sidebar-container {
+  padding: 3px;
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 100%;
+  max-height:100%;
+
+  .sidebar-scrollable-content {
+    height: 100%;
+    padding-right: 4px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    scrollbar-width: thin;
+    scrollbar-color: $wm-bg3-color transparent;
+
+    .sidebar-panel {
+      .sidebar-panel-header {
+        border: 2px solid $border-color;
+        display: flex;
+
+        border-radius: 6px;
+        &.wm-expanded { border-radius: 6px 6px 0px 0px; }
+
+        @include defaultTextColor;
+        background: $wm-bg2-color;
+
+        padding-inline: 0px;
+        font-size: 14px;
+        user-select: none;
+
+        .sidebar-panel-header-caption {
+  
+          display: flex;
+          flex-grow: 1;
+          text-align: left;
+          @include defaultTextColor;
+          background-color: transparent;
+          border: 1px solid transparent;
+          border-radius: 4px;
+          padding: 2px;
+
+          @include wm-button-states;
+
+          :nth-child(2) {
+            flex-grow: 1;
+            padding-left: 3px;
+            padding-right: 12px;
+          }
+        }
+
+
+        &:hover .sidebar-panel-header-options {
+          @include defaultTextColor;
+        }
+
+        .sidebar-panel-header-options {
+          background-color: transparent;
+          border: 1px solid transparent;
+          border-radius: 4px;
+          padding: 2px;
+          color: transparent;
+          @include wm-button-states;
+        }
+      }
+
+      .sidebar-panel-content {
+        max-width: 100%;
+        box-sizing: border-box;
+        font-size: 14px;
+        line-height: 18px;
+        @include defaultTextColor;
+  
+        border: 2px solid $border-color;
+        border-top: 0px;
+        border-radius: 0px 0px 6px 6px;
+        overflow: hidden;
+        padding: 4px;
+        margin: 0px;
+        &.wm-collapsed {
+          display: none;
+        }
+
+        .sidebar-panel-chart {
+          height: 300px;
+          width: 100%;
+          overflow: hidden;
+        }
+      }
+    }
+  }
+}

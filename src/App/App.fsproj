@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="ThemeColors.fs" />
+    <Compile Include="SutilExt.fs" />
+    <Compile Include="Libs/Monaco.fs" />
+    <Compile Include="Libs/MonacoEditor.fs" />
+    <Compile Include="Libs/HotkeysJs.fs" />
+    <Compile Include="Libs/Hotkeys.fs" />
+    <Compile Include="DemoChart.fs" />
+    <Compile Include="Sidebar.fs" />
+    <Compile Include="EditorPage.fs" />
+    <Compile Include="App.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- <ProjectReference Include="..\..\..\Sutil\src\Sutil\Sutil.fsproj" /> -->
+  </ItemGroup>
+
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

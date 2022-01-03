@@ -1,0 +1,16 @@
+source https://api.nuget.org/v3/index.json
+
+storage: none
+framework: net5.0
+
+
+nuget FSharp.Core
+nuget Fable.Core
+
+nuget Sutil >= 1 beta
+nuget Fable.Browser.WebStorage
+nuget Fable.Browser.Dom
+nuget Fable.Browser.Event
+nuget Fable.Browser.MediaQueryList
+
+nuget Feliz.Plotly

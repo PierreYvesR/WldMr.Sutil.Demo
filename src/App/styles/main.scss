@@ -1,0 +1,124 @@
+@use "editorPage";
+@use "horizontalResize";
+@use "button";
+@use "sidebar";
+@use "colors" as *;
+
+@import '@vscode/codicons/dist/codicon.css';
+
+
+// unselectable {
+//   -webkit-touch-callout: none;
+//   -webkit-user-select: none;
+//   -moz-user-select: none;
+//   -ms-user-select: none;
+//   user-select: none;
+// }
+
+html {
+  color-scheme: dark;
+  min-height: 100vh;
+  max-height: 100vh;
+}
+
+body {
+  background: $wm-bg1-color;
+  font-family: 'Spartan', sans-serif;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  margin: 0;
+  font-size: 14px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: $wm-bg3-color;
+  border-radius: 4px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: $wm-bg6-color;
+}
+
+kbd {
+  border: 1px solid $wm-bg7-color;
+  border-radius: 3px;
+}
+
+.wm-app-container {
+  height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+
+  padding: 3px;
+
+  .wm-app-grid {
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+
+    display: grid;
+    grid-template-columns: 257px 8px calc(100vw - 257px);
+  }
+}
+
+label.radio {
+  display: flex;
+  gap: 6px;
+  padding: 2px;
+  box-sizing: border-box;
+  span {
+    flex-grow: 0;
+  }
+  // width: 100%;
+}
+
+input[type="radio"] {
+  appearance: none;
+  background-color: transparent;
+  margin: 0;
+  font: inherit;
+  color: $wm-bg9-color;
+  // display: flex;
+  flex-grow: 0;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+
+  border: 2px solid $border-color;
+  border-radius: 50%;
+  place-content: center;
+
+  display: grid;
+  &::before {
+    flex-grow: 0;
+    content: "";
+    padding: 2px;
+    box-sizing: border-box;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  &:checked {
+    border-color: $wm-bg6-4-color; 
+    &::before {
+      background-color: $wm-bg8-color; 
+    }
+  }
+  &:hover {
+    border-color: $wm-bg8-color; 
+    &::before {
+      background-color: $wm-bg10-color; 
+    }
+  }
+  &:focus {
+    border-color: $wm-bg9-color;
+    outline: none;
+  }
+}
