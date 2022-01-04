@@ -130,12 +130,23 @@ let app () =
       Html.div [ ]
     ]
 
+  let panels =
+    [
+      Panels.SettingsPanel.settingsPanel themeIsLight
+      Panels.HelpPanels.introPanel
+      Panels.HelpPanels.shortcutPanel
+      Panels.CheckpointsPanel.checkpointsPanel (LoadCheckpoint >> dispatch) (model .> (fun m -> m.TextStorage.Checkpoints))
+      Panels.PlotlyDemoPanel.plotlyDemoPanel
+        (Store.zip themeIsLight (model .> (fun m -> m.TextStorage.Checkpoints |> List.length)))
+    ]
+
 
   HtmlExt.recDivClass [ "wm-app-container"; "wm-app-grid"] [
-    DOM.unsubscribeOnUnmount [ umedia; themeIsLight.Dispose]
+    DOM.unsubscribeOnUnmount [ umedia]
+    DOM.disposeOnUnmount [themeIsLight; model]
     bindElement sidebarSize Attr.style
 
-    Sidebar.sideBar (LoadCheckpoint >> dispatch) themeIsLight (model .> (fun m -> m.TextStorage))
+    Sidebar.sideBar panels
     resizeHBar()
     EditorPage.editorPage (EditorPageMsg >> dispatch) (model .> fun m -> m.EditorPage) themeIsLight
   ]

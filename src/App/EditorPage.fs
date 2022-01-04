@@ -29,6 +29,7 @@ let initState () =
     Editor= None
     CharCount= 0
   }
+
 let initCmd () =
   Cmd.batch [
     Hotkeys.Cmd.bindHotkey "ctrl+s" Msg.SaveEditor

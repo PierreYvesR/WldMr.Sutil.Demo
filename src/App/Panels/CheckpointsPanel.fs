@@ -6,7 +6,7 @@ open Sutil.Attr
 
 open Fable.Core.JsInterop
 
-let checkpointsPanel (loadItemCallback) (textStore: IObservable<TextStorage.Model>): Panel =
+let checkpointsPanel (loadItemCallback) (checkpointsObs: IObservable<TextStorage.Checkpoint list>): Panel =
   let choice (i, cp: TextStorage.Checkpoint) =
     let date = cp.SaveTime.ToString("yyyy-MM-dd hh:mm:ss")
     Html.option [
@@ -14,10 +14,9 @@ let checkpointsPanel (loadItemCallback) (textStore: IObservable<TextStorage.Mode
       text $"{date}, {cp.LineCount} lines"
     ]
   let choices () =
-    let indexedCheckpoint = (textStore .> (fun tsm -> tsm.Checkpoints))
-    Bind.eachi(indexedCheckpoint, choice)
+    Bind.eachi(checkpointsObs, choice)
 
-  let select tsm =
+  let select () =
     Html.div [
       text "Choose a version to revert to"
       Html.br []
@@ -25,15 +24,20 @@ let checkpointsPanel (loadItemCallback) (textStore: IObservable<TextStorage.Mode
         on "change" ( fun e ->
           let value: string = e?target?value
           loadItemCallback (value |> int)
+          e?target?value <- ""
         ) []
+        Html.option [
+          Attr.selected true
+          Attr.hidden true
+        ]
         choices ()
       ]
     ]
 
   let content () =
     Html.div [
-      textStore |=> (fun ts -> text $"{ts.Checkpoints.Length} checkpoint(s) saved.")
-      select textStore
+      checkpointsObs |=> (fun cps -> text $"{cps.Length} checkpoint(s) saved.")
+      select ()
     ]
 
 

@@ -52,6 +52,14 @@ kbd {
   border-radius: 3px;
 }
 
+a {
+  color: hsl(202, 90%, 35%);
+}
+
+a:visited {
+  color: hsl(202, 20%, 55%);
+}
+
 .wm-app-container {
   height: 100vh;
   width: 100vw;

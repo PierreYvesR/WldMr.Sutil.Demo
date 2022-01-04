@@ -51,18 +51,9 @@ let private sideBarPanel dispatch (panel: Panels.Panel) (store: IStore<Model>) =
   Panels.sideBarPanel panel isExpanded
 
 
-let sideBar loadItemCallback (themeIsLightStore: VirtualStore<bool>) (textStorageStore: System.IObservable<TextStorage.Model>) =
+let sideBar (panels: Panels.Panel list) =
+  // loadItemCallback (themeIsLightStore: VirtualStore<bool>) (textStorageStore: System.IObservable<TextStorage.Model>) =
   let store, dispatch = () |> Store.makeElmish init update ignore
-
-  let panels =
-    [
-      Panels.SettingsPanel.settingsPanel themeIsLightStore
-      Panels.HelpPanels.introPanel
-      Panels.HelpPanels.shortcutPanel
-      Panels.PlotlyDemoPanel.plotlyDemoPanel
-        (Store.zip themeIsLightStore (store .> (fun m -> m.Expanded.Count)))
-      Panels.CheckpointsPanel.checkpointsPanel loadItemCallback textStorageStore
-    ]
 
   let allPanelsIds = panels |> List.map (fun p -> p.Id) |> Set.ofList
 

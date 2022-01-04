@@ -21,7 +21,7 @@ module private Internal =
             )
           rules =
             let rule: Monaco.Editor.ITokenThemeRule = {
-              Monaco.Editor.ITokenThemeRule.token= ""
+              token= ""
               foreground= None
               background= Some ThemeColors.Light.``wm-bg1-color-hex``
               fontStyle= None
@@ -77,7 +77,6 @@ module private Internal =
   type MonacoDisposable(monacoDisposable: Monaco.IDisposable) =
     interface System.IDisposable with
       member _.Dispose() = monacoDisposable.dispose()
-
 
 
 let setTheme isLight=
