@@ -24,7 +24,6 @@ module Dark =
   let ``wm-bg11-color`` = "rgb(229, 229, 229)"
 
 
-// [<AutoOpen>]
 module Light =
   let ``wm-bg1-color-hex`` = "#E5E5E5"
   let ``wm-bg2-color-hex`` = "#DBDBDB"

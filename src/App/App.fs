@@ -12,6 +12,8 @@ type Model = {
   DragTarget : DragTarget
   SidebarSize : float
   ThemeIsLight: bool
+  TextStorage: TextStorage.Model
+  EditorPage: EditorPage.Model
 }
 with
   static member isDragging(m: Model) = m.DragTarget = PanelSplitter
@@ -25,6 +27,9 @@ type Msg =
   | MouseMove of Browser.Types.MouseEvent
   | DispatchResizeEvent
   | ThemeIsLight of bool
+  | TextStorageMsg of TextStorage.Msg
+  | EditorPageMsg of EditorPage.Msg
+  | LoadCheckpoint of int
 
 
 let private clamp min max value =
@@ -69,16 +74,42 @@ let update msg (model : Model) =
       { model with ThemeIsLight = isLight }
       , Cmd.none
 
+  | TextStorageMsg subMsg ->
+      let subModel =
+        TextStorage.update model.TextStorage subMsg
+      { model with TextStorage = subModel},
+      Cmd.none
+
+  | LoadCheckpoint idx ->
+      let s = model.TextStorage.Checkpoints.Item(idx).Text
+      model,
+      Cmd.ofMsg (EditorPageMsg (EditorPage.Msg.LoadText s))
+
+
+  | EditorPageMsg subMsg ->
+      let (subModel, subCmd, extMsg) =
+        EditorPage.update subMsg model.EditorPage
+      let extraCmd =
+        match extMsg with
+        | EditorPage.ExternalMsg.NoOp -> Cmd.none
+        | EditorPage.ExternalMsg.SaveText s -> s |> TextStorage.Msg.SaveText |> TextStorageMsg |> Cmd.ofMsg
+      { model with EditorPage = subModel},
+      Cmd.batch [subCmd |> Cmd.map EditorPageMsg; extraCmd]
+
+
 let init () =
   {
     DragTarget= NoTarget
     SidebarSize= 400.
     ThemeIsLight= Interop.Window.matchMedia( "(prefers-color-scheme: light)" ).matches
+    TextStorage= TextStorage.init ()
+    EditorPage= EditorPage.initState ()
   },
   Cmd.batch [
     Cmd.move MouseMove
     Cmd.ups MouseUp
     Cmd.ofMsgDelayed 0. DispatchResizeEvent
+    EditorPage.initCmd() |> Cmd.map EditorPageMsg
   ]
 
 let app () =
@@ -99,11 +130,12 @@ let app () =
       Html.div [ ]
     ]
 
+
   HtmlExt.recDivClass [ "wm-app-container"; "wm-app-grid"] [
     DOM.unsubscribeOnUnmount [ umedia; themeIsLight.Dispose]
     bindElement sidebarSize Attr.style
 
-    Sidebar.sideBar themeIsLight
+    Sidebar.sideBar (LoadCheckpoint >> dispatch) themeIsLight (model .> (fun m -> m.TextStorage))
     resizeHBar()
-    EditorPage.editorPage themeIsLight
+    EditorPage.editorPage (EditorPageMsg >> dispatch) (model .> fun m -> m.EditorPage) themeIsLight
   ]

@@ -17,7 +17,7 @@ let reactDemoChart theme (xs: float[]) (ys: float[]) =
       ]
     ]
     plot.layout [
-      layout.title "a Chart"
+      // layout.title "a Chart"
       layout.autosize true
       layout.paperBgcolor
         (

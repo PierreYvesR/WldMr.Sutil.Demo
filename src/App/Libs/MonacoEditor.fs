@@ -83,6 +83,8 @@ module private Internal =
 let setTheme isLight=
   Monaco.editor.setTheme( themeName isLight )
 
+let getValue (e: Monaco.Editor.ICodeEditor) =
+  e.getValue()
 
 // this should be a ReadOnlyStore
 let monacoEditor onCreated onChange initialText (isLightTheme: Store<bool>) =

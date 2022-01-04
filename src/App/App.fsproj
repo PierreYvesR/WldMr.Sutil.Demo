@@ -10,7 +10,13 @@
     <Compile Include="Libs/MonacoEditor.fs" />
     <Compile Include="Libs/HotkeysJs.fs" />
     <Compile Include="Libs/Hotkeys.fs" />
-    <Compile Include="DemoChart.fs" />
+    <Compile Include="TextStorage.fs" />
+    <Compile Include="Panels/Panel.fs" />
+    <Compile Include="Panels/SettingsPanel.fs" />
+    <Compile Include="Panels/DemoChart.fs" />
+    <Compile Include="Panels/PlotlyDemoPanel.fs" />
+    <Compile Include="Panels/HelpPanels.fs" />
+    <Compile Include="Panels/CheckpointsPanel.fs" />
     <Compile Include="Sidebar.fs" />
     <Compile Include="EditorPage.fs" />
     <Compile Include="App.fs" />
