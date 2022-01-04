@@ -1,0 +1,32 @@
+@use "colors" as *;
+
+
+select {
+  // @include wm-button-states;
+  @include defaultTextColor;
+  font-size: 14px;
+  font-family: 'Spartan', sans-serif;
+  background-color: transparent;
+  border-radius: 6px;
+  border-width: 2px;
+  padding-inline: 3px;
+  border-color: $border-color;
+
+  &:hover {
+    color: $wm-bg10-color;
+    background-color: $wm-bg5-color;
+    border-color: $wm-bg5-color;
+  }
+
+  &:focus {
+    color: $wm-bg9-color;
+    background-color: $wm-bg5-color;
+    border-color: $wm-bg5-color;
+    outline: none;
+  }
+
+  option {
+    background-color: $wm-bg3-color;
+    color: $wm-bg9-color;
+  }
+};
