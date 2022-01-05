@@ -1,0 +1,33 @@
+@use "colors" as *;
+
+.cell-editor-page {
+  height: 100%;
+  box-sizing: border-box;
+  padding: 3px;
+
+  min-height: 100%;
+  max-height: 100%;
+
+  & > div {
+    height: 100%;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    border: 2px solid $border-color;
+    border-radius: 6px;
+  }
+
+  .cell-editor-content {
+    flex-grow: 1;
+    height: 100%;
+    overflow: hidden;
+    padding: 2px;
+    @include defaultTextColor;
+    
+    display: flex;
+    align-items:center; 
+    justify-content:center;
+  }
+
+}

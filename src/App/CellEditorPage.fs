@@ -1,12 +1,14 @@
 module CellEditorPage
 
 open Sutil
+open Sutil.Attr
+open SutilExt
 
 
 let cellEditorPage () =
-  Html.div [
-    Attr.style "width: 100%; height:100%; display: flex; align-items:center; justify-content:center;"
+  HtmlExt.recDivClass [ "cell-editor-page"; ""] [
     Html.div [
-      text "Cell Editor placeholder"
+      Attr.className "cell-editor-content"
+      text "<Cell Editor placeholder>"
     ]
   ]

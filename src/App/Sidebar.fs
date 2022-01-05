@@ -18,10 +18,10 @@ type Model =
   static member isExpanded panelId (m: Model) =
     m.Expanded.Contains panelId
 
-let init () =
+let init expandedIds =
   {
     AllPanelsIds= Set.empty
-    Expanded= Set.empty
+    Expanded= expandedIds |> Set.ofList
   }, Cmd.batch [ Hotkeys.Cmd.bindHotkey "ctrl+b" Msg.ToggleAll ]
 
 let update msg (model: Model) =
@@ -51,9 +51,8 @@ let private sideBarPanel dispatch (panel: Panels.Panel) (store: IStore<Model>) =
   Panels.sideBarPanel panel isExpanded
 
 
-let sideBar (panels: Panels.Panel list) =
-  // loadItemCallback (themeIsLightStore: VirtualStore<bool>) (textStorageStore: System.IObservable<TextStorage.Model>) =
-  let store, dispatch = () |> Store.makeElmish init update ignore
+let sideBar (panels: Panels.Panel list) (expandedIds: string list) =
+  let store, dispatch = expandedIds |> Store.makeElmish init update ignore
 
   let allPanelsIds = panels |> List.map (fun p -> p.Id) |> Set.ofList
 

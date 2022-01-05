@@ -3,6 +3,8 @@ module Panels.MainMenuPanel
 open Sutil
 open Sutil.Attr
 
+let panelId = "mainmenu"
+
 let mainMenuPanel dispatch titles msgs: Panel =
   let content () =
     (titles, msgs)
@@ -16,5 +18,5 @@ let mainMenuPanel dispatch titles msgs: Panel =
   {
     Content= content()
     Title = "Main menu"
-    Id = "mainmenu"
+    Id = panelId
   }

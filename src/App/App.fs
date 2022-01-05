@@ -166,13 +166,13 @@ let app () =
     let makePage pageValue elt =
       Html.div [
         Attr.style "width:100%; height: 100%;"
-        Bind.attr("hidden", model .> (fun m -> m.DisplayedPage <> pageValue))
+        Bind.attr("hidden", model .> (fun m -> m.DisplayedPage <> pageValue) |> Store.distinct)
         elt
       ]
 
     [
-      // MonacoEditorPage.monacoEditorPage (MonacoEditorPageMsg >> dispatch) (model .> fun m -> m.MonacoEditorPage) themeIsLight
-      //   |> makePage Page.MonacoEditorPage
+      MonacoEditorPage.monacoEditorPage (MonacoEditorPageMsg >> dispatch) (model .> fun m -> m.MonacoEditorPage) themeIsLight
+        |> makePage Page.MonacoEditorPage
       CellEditorPage.cellEditorPage ()
         |> makePage Page.CellEditorPage
     ]
@@ -182,7 +182,7 @@ let app () =
     DOM.disposeOnUnmount [themeIsLight; model]
     bindElement sidebarSize Attr.style
 
-    Sidebar.sideBar panels
+    Sidebar.sideBar panels [Panels.MainMenuPanel.panelId]
     resizeHBar()
 
     mainPages |> DOM.fragment
