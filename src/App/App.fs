@@ -8,12 +8,20 @@ type DragTarget =
   | NoTarget
   | PanelSplitter
 
+[<RequireQualifiedAccess>]
+type Page =
+  | MonacoEditorPage
+  | CellEditorPage
+
 type Model = {
   DragTarget : DragTarget
   SidebarSize : float
   ThemeIsLight: bool
+
   TextStorage: TextStorage.Model
-  EditorPage: EditorPage.Model
+  MonacoEditorPage: MonacoEditorPage.Model
+
+  DisplayedPage: Page
 }
 with
   static member isDragging(m: Model) = m.DragTarget = PanelSplitter
@@ -27,9 +35,13 @@ type Msg =
   | MouseMove of Browser.Types.MouseEvent
   | DispatchResizeEvent
   | ThemeIsLight of bool
+
   | TextStorageMsg of TextStorage.Msg
-  | EditorPageMsg of EditorPage.Msg
+  | MonacoEditorPageMsg of MonacoEditorPage.Msg
+
   | LoadCheckpoint of int
+
+  | ChangePage of Page
 
 
 let private clamp min max value =
@@ -83,18 +95,22 @@ let update msg (model : Model) =
   | LoadCheckpoint idx ->
       let s = model.TextStorage.Checkpoints.Item(idx).Text
       model,
-      Cmd.ofMsg (EditorPageMsg (EditorPage.Msg.LoadText s))
+      Cmd.ofMsg (MonacoEditorPageMsg (MonacoEditorPage.Msg.LoadText s))
 
 
-  | EditorPageMsg subMsg ->
+  | MonacoEditorPageMsg subMsg ->
       let (subModel, subCmd, extMsg) =
-        EditorPage.update subMsg model.EditorPage
+        MonacoEditorPage.update subMsg model.MonacoEditorPage
       let extraCmd =
         match extMsg with
-        | EditorPage.ExternalMsg.NoOp -> Cmd.none
-        | EditorPage.ExternalMsg.SaveText s -> s |> TextStorage.Msg.SaveText |> TextStorageMsg |> Cmd.ofMsg
-      { model with EditorPage = subModel},
-      Cmd.batch [subCmd |> Cmd.map EditorPageMsg; extraCmd]
+        | MonacoEditorPage.ExternalMsg.NoOp -> Cmd.none
+        | MonacoEditorPage.ExternalMsg.SaveText s -> s |> TextStorage.Msg.SaveText |> TextStorageMsg |> Cmd.ofMsg
+      { model with MonacoEditorPage = subModel},
+      Cmd.batch [subCmd |> Cmd.map MonacoEditorPageMsg; extraCmd]
+
+  | ChangePage page ->
+      { model with DisplayedPage = page},
+      Cmd.none
 
 
 let init () =
@@ -103,26 +119,28 @@ let init () =
     SidebarSize= 400.
     ThemeIsLight= Interop.Window.matchMedia( "(prefers-color-scheme: light)" ).matches
     TextStorage= TextStorage.init ()
-    EditorPage= EditorPage.initState ()
+    MonacoEditorPage= MonacoEditorPage.initState ()
+    DisplayedPage= Page.CellEditorPage
   },
   Cmd.batch [
     Cmd.move MouseMove
     Cmd.ups MouseUp
     Cmd.ofMsgDelayed 0. DispatchResizeEvent
-    EditorPage.initCmd() |> Cmd.map EditorPageMsg
+    MonacoEditorPage.initCmd() |> Cmd.map MonacoEditorPageMsg
+    MonacoEditorPage.Msg.LoadText """{"Here": "is some json","anObj": {"a": [1,2,3,5,8,13]}}""" |> MonacoEditorPageMsg |> Cmd.ofMsg
+    MonacoEditorPage.Msg.SaveEditor |> MonacoEditorPageMsg |> Cmd.ofMsg
   ]
 
 let app () =
   let model, dispatch = () |> Store.makeElmish init update ignore
 
-  let umedia = MediaQuery.listenMedia "(prefers-color-scheme: light)" (dispatch << ThemeIsLight)
+  let umedia = MediaQuery.listenMedia "(prefers-color-scheme: light)" (ThemeIsLight >> dispatch)
+  let themeIsLight = model |> VirtualStore.ofStore  (fun m -> m.ThemeIsLight) (ThemeIsLight >> dispatch)
 
   let sidebarSize =
     model
     .> Model.sidebarSizeInt
     .>=/=> fun s -> $"grid-template-columns:{s}px 7px calc(100%% - {s+7}px)"
-
-  let themeIsLight = model |> VirtualStore.ofStore  (fun m -> m.ThemeIsLight) (ThemeIsLight >> dispatch)
 
   let resizeHBar () =
     HtmlExt.recDivClass [ "horizontal-resize"; ""] [
@@ -132,6 +150,10 @@ let app () =
 
   let panels =
     [
+      Panels.MainMenuPanel.mainMenuPanel (ChangePage >> dispatch)
+        ["Text Editor"; "Cell Editor"]
+        [ Page.MonacoEditorPage; Page.CellEditorPage ]
+
       Panels.SettingsPanel.settingsPanel themeIsLight
       Panels.HelpPanels.introPanel
       Panels.HelpPanels.shortcutPanel
@@ -140,6 +162,20 @@ let app () =
         (Store.zip themeIsLight (model .> (fun m -> m.TextStorage.Checkpoints |> List.length)))
     ]
 
+  let mainPages =
+    let makePage pageValue elt =
+      Html.div [
+        Attr.style "width:100%; height: 100%;"
+        Bind.attr("hidden", model .> (fun m -> m.DisplayedPage <> pageValue))
+        elt
+      ]
+
+    [
+      // MonacoEditorPage.monacoEditorPage (MonacoEditorPageMsg >> dispatch) (model .> fun m -> m.MonacoEditorPage) themeIsLight
+      //   |> makePage Page.MonacoEditorPage
+      CellEditorPage.cellEditorPage ()
+        |> makePage Page.CellEditorPage
+    ]
 
   HtmlExt.recDivClass [ "wm-app-container"; "wm-app-grid"] [
     DOM.unsubscribeOnUnmount [ umedia]
@@ -148,5 +184,6 @@ let app () =
 
     Sidebar.sideBar panels
     resizeHBar()
-    EditorPage.editorPage (EditorPageMsg >> dispatch) (model .> fun m -> m.EditorPage) themeIsLight
+
+    mainPages |> DOM.fragment
   ]

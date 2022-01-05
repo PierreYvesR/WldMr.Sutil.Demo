@@ -17,8 +17,10 @@
     <Compile Include="Panels/PlotlyDemoPanel.fs" />
     <Compile Include="Panels/HelpPanels.fs" />
     <Compile Include="Panels/CheckpointsPanel.fs" />
+    <Compile Include="Panels/MainMenuPanel.fs" />
     <Compile Include="Sidebar.fs" />
-    <Compile Include="EditorPage.fs" />
+    <Compile Include="CellEditorPage.fs" />
+    <Compile Include="MonacoEditorPage.fs" />
     <Compile Include="App.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

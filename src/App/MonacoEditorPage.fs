@@ -1,4 +1,4 @@
-module EditorPage
+module MonacoEditorPage
 
 open Sutil
 open Sutil.Attr
@@ -33,7 +33,6 @@ let initState () =
 let initCmd () =
   Cmd.batch [
     Hotkeys.Cmd.bindHotkey "ctrl+s" Msg.SaveEditor
-    Cmd.ofMsg Msg.SaveEditor
   ]
 
 
@@ -60,14 +59,14 @@ let update msg model =
 
 
 // themeIsLight should be a ReadOnlyStore<bool>
-let editorPage dispatch (model: System.IObservable<Model>) (themeIsLight: VirtualStore<bool>) =
+let monacoEditorPage dispatch (model: System.IObservable<Model>) (themeIsLight: VirtualStore<bool>) =
   HtmlExt.recDivClass [ "editor-page"; "editor-page-content"] [
     Html.div [
       Attr.className "editor-page-monaco-container"
       MonacoEditor.monacoEditor
         (Msg.EditorCreated >> dispatch)
         (Msg.ContentChanged >> dispatch)
-        """{"Here": "is some json","anObj": {"a": [1,2,3,5,8,13]}}"""
+        ""
         themeIsLight
     ]
 
