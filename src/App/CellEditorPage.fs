@@ -184,7 +184,7 @@ let cellEditorPage dispatch (model: System.IObservable<Model>) =
                 if m.Active = i then
                   Attr.className "cell-editor-cell-dormant-selected"
                 text m.Values.[i]
-                on "dblclick" (fun _ -> Msg.StartEdit (i, None) |> dispatch) []
+                on "dblclick" (fun _ -> Msg.StartEdit (i, None) |> dispatch) [StopPropagation; PreventDefault]
                 onClick (fun _ -> Msg.SelectCell i |> dispatch) []
               ]
         ] |> DOM.fragment)

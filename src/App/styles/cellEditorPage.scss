@@ -81,6 +81,8 @@
       padding: 2px 4px;
       background-color: $wm-bg1-color;
 
+      user-select: none;
+      
       border: 1px solid $wm-bg5-color;
       &:hover {
         // color: $wm-bg10-color;
