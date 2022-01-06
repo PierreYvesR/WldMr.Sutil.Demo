@@ -6,20 +6,21 @@ open SutilExt
 
 
 let private plotlyPanelChart obs =
-  let chartFun (theme, charCount) =
-    DemoChart.reactDemoChart theme [| 1.; 2.; 3.|] [| 1.; 4.; (float charCount) |]
+  let chartFun (theme, v) =
+    DemoChart.reactDemoChart theme [| 1.; 2.; 3.; 4.|] v
 
   Html.div [
     Attr.className "sidebar-panel-chart"
     Bind.reactElement(obs, chartFun)
   ]
 
+let panelId = "plotly-demo"
 
 let plotlyDemoPanel zippedStore: Panels.Panel  =
   {
-    Title= "Demo Plotly chart"; Id= "plotly-demo";
+    Title= "Demo Plotly chart"; Id= panelId;
     Content= [
-      text "A hosted react components that changes with the number of open panels."
+      text "A hosted react component that reflect the cells in the editor."
       Html.br []
       text "Done with "
       Html.a [ text "Feliz.Plotly"; Attr.href "https://github.com/Shmew/Feliz.Plotly" ]

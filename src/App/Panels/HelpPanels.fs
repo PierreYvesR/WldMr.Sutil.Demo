@@ -7,6 +7,11 @@ open Sutil.Attr
 let shortcutPanel: Panels.Panel = {
   Title= "Shortcuts"; Id= "shortcut";
   Content = [
+    text "Shortcuts provided by "
+    Html.a [
+      Attr.href "https://github.com/jaywcjlove/hotkeys"
+      text "HotKeys.js"
+    ]
     Html.dl [
       Html.dt [ Html.kbd "Ctrl"; text "+"; Html.kbd "B" ]
       Html.dd [ text "Toggle the sidebar panels"]
@@ -20,7 +25,6 @@ let shortcutPanel: Panels.Panel = {
 let introPanel: Panels.Panel = {
   Title= "Intro"; Id= "intro";
   Content= [
-    text "<em>Italic</em>"
     text "This side bar is resizable, try dragging the vertical separator."
     Html.br []
     text "The text editor is "

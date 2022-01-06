@@ -5,18 +5,23 @@ open Sutil.Attr
 
 let panelId = "mainmenu"
 
-let mainMenuPanel dispatch titles msgs: Panel =
+let mainMenuPanel dispatch contents msgs: Panel =
   let content () =
-    (titles, msgs)
-    ||> List.map2 (fun title msg ->
-      Html.button [
-        Attr.className "wm-button"
-        Html.text (title: string)
-        onClick (fun _ -> dispatch msg) []
-      ]
-    )
+    Html.div [
+      Attr.className "mainmenu-panel"
+      (contents, msgs)
+      ||> List.map2 (fun content msg ->
+        Html.button [
+          Attr.className "wm-button"
+          content
+          onClick (fun _ -> dispatch msg) []
+        ]
+      )
+      |> DOM.fragment
+    ]
+
   {
-    Content= content()
+    Content= [content()]
     Title = "Main menu"
     Id = panelId
   }

@@ -14,20 +14,107 @@
 
     display: flex;
     flex-direction: column;
+    align-items:center; 
+    justify-content:center;
     border: 2px solid $border-color;
     border-radius: 6px;
+
+    .table-container {
+      border: 2px solid $border-color;
+      border-radius: 6px;
+      background-color: $wm-bg3-color;
+
+      .table-container-title {
+        @include defaultTextColor;
+        border-radius: 4px;
+        text-align: center;
+        padding: 2px;
+        background-color: $wm-bg2-color;
+      }
+
+      .table-container-content {
+        padding: 8px;
+      }
+      .table-container-separator {
+        height: 0px;
+        border-top: 2px solid $border-color;
+      }
+
+    }
   }
 
-  .cell-editor-content {
+  .table-content {
     flex-grow: 1;
-    height: 100%;
     overflow: hidden;
     padding: 2px;
     @include defaultTextColor;
     
-    display: flex;
-    align-items:center; 
-    justify-content:center;
+    display: grid;
+    border-radius: 5px;
+    gap: 2px;
+    grid-auto-rows: 24px;
+    grid-template-columns: 120px 120px;
+    justify-content: center;
+    align-content: center;
+    background-color: $wm-bg5-color;
+
+
+    .cell-editor-cell-active {
+      font-size: 14px;
+      border-radius: 3px;
+      line-height: 18px;
+      padding: 2px 4px;
+
+      color: $wm-bg11-color;
+      border: 1px solid $wm-bg9-color;
+      background-color: $wm-bg0-color;
+      &:focus {
+        outline: none;
+      }
+    }
+
+    .cell-editor-cell-dormant {
+      height: 18px;
+      font-size: 14px;
+      border-radius: 3px;
+      line-height: 18px;
+      padding: 2px 4px;
+      background-color: $wm-bg1-color;
+
+      border: 1px solid $wm-bg5-color;
+      &:hover {
+        // color: $wm-bg10-color;
+        border-color: $wm-bg7-color;
+        background-color: $wm-bg2-color;
+      }
+      &-selected {
+        
+        padding: 0px 2px;
+        border-color: $wm-bg6-4-color;
+        border-width: 3px;
+        
+      }
+    }
+
+    .cell-editor-cell-inactive {
+      height: 18px;
+      font-size: 14px;
+      border-radius: 3px;
+      line-height: 18px;
+      padding: 2px 4px;
+      background-color: $wm-bg2-color;
+      text-align: right;
+
+      border: 1px solid $wm-bg5-color;
+    }
+
+    &:focus {
+      outline: none;
+      .cell-editor-cell-dormant-selected {
+        border-color: $wm-bg8-color;
+        // background-color: $wm-bg2-color;
+      }
+    }
   }
 
 }
