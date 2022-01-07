@@ -18,9 +18,9 @@ type Model =
   static member isExpanded panelId (m: Model) =
     m.Expanded.Contains panelId
 
-let init expandedIds =
+let init (allPanelsIds, expandedIds) =
   {
-    AllPanelsIds= Set.empty
+    AllPanelsIds= allPanelsIds |> Set.ofList
     Expanded= expandedIds |> Set.ofList
   }, Cmd.batch [ Hotkeys.Cmd.bindHotkey "ctrl+b" Msg.ToggleAll ]
 
@@ -52,11 +52,9 @@ let private sideBarPanel dispatch (panel: Panels.Panel) (store: IStore<Model>) =
 
 
 let sideBar (panels: Panels.Panel list) (expandedIds: string list) =
-  let store, dispatch = expandedIds |> Store.makeElmish init update ignore
+  let allPanelsIds = panels |> List.map (fun p -> p.Id)
 
-  let allPanelsIds = panels |> List.map (fun p -> p.Id) |> Set.ofList
-
-  store <~ { store.Value with AllPanelsIds= allPanelsIds }
+  let store, dispatch = (expandedIds, allPanelsIds) |> Store.makeElmish init update ignore
 
   HtmlExt.recDivClass ["sidebar-container"; "sidebar-scrollable-content"] [
     for p in panels do
