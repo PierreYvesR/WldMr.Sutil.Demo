@@ -43,9 +43,9 @@
           text-align: left;
           @include defaultTextColor;
           background-color: transparent;
-          border: 1px solid transparent;
+          border: 2px solid transparent;
           border-radius: 4px;
-          padding: 2px;
+          padding: 1px;
 
           @include wm-button-states;
 
@@ -63,9 +63,9 @@
 
         .sidebar-panel-header-options {
           background-color: transparent;
-          border: 1px solid transparent;
+          border: 2px solid transparent;
           border-radius: 4px;
-          padding: 2px;
+          padding: 1px;
           color: transparent;
           @include wm-button-states;
         }

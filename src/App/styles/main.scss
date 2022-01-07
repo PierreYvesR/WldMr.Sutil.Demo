@@ -83,15 +83,19 @@ a:visited {
   }
 }
 
-label.radio {
+
+div.radio {
+  padding-left: 2px;
   display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+label.radio {
+  // display: flex;
   gap: 6px;
   padding: 2px;
   box-sizing: border-box;
-  span {
-    flex-grow: 0;
-  }
-  // width: 100%;
 }
 
 input[type="radio"] {
@@ -100,8 +104,6 @@ input[type="radio"] {
   margin: 0;
   font: inherit;
   color: $wm-bg9-color;
-  // display: flex;
-  flex-grow: 0;
   box-sizing: border-box;
   width: 16px;
   height: 16px;
@@ -110,9 +112,11 @@ input[type="radio"] {
   border-radius: 50%;
   place-content: center;
 
-  display: grid;
+  display: inline-block;
+  padding: 2px;
   &::before {
-    flex-grow: 0;
+
+    display: block;
     content: "";
     padding: 2px;
     box-sizing: border-box;
@@ -133,7 +137,8 @@ input[type="radio"] {
     }
   }
   &:focus {
-    border-color: $wm-bg9-color;
+    border-color: $focus-intense-border-color; // $wm-bg9-color;
+    color: $focus-intense-border-color;
     outline: none;
   }
 }

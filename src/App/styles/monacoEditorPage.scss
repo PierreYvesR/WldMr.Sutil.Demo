@@ -16,6 +16,10 @@
     flex-direction: column;
     border: 2px solid $border-color;
     border-radius: 6px;
+
+    &:focus-within {
+      border-color: $focus-border-color;
+    }
     
     .editor-page-monaco-container {
       flex-grow: 1;

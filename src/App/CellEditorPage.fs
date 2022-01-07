@@ -1,5 +1,7 @@
 module CellEditorPage
 
+open Fable.Core.JsInterop
+
 open Sutil
 open Sutil.Attr
 open SutilExt
@@ -91,6 +93,25 @@ let updateActive (keOpt: Browser.Types.KeyboardEvent option) model =
   | None -> model, Cmd.none
   | Some ke -> updateActive_ ke
 
+
+let keyDownHandler m focusStore dispatch i (ke: Browser.Types.KeyboardEvent) =
+  if ke.key = "Enter" || ke.key = "Tab" then
+    // Browser.Dom.console.log ("Enter/Tab", ke)
+    let loseFocus = updateActive (Some ke) m |> fst |> (fun m -> not m.Editing)
+    (i, ke.target?value, Some ke) |> Msg.UpdateValue |> dispatch
+    if loseFocus then DOM.rafu (fun () -> focusStore <~ ())
+    ke.preventDefault()
+    ke.stopPropagation()
+  elif ke.key = "Escape" then
+    // Browser.Dom.console.log ("Escape", ke)
+    Msg.CancelEdit i |> dispatch
+    DOM.rafu (fun () -> focusStore <~ ())
+    ke.stopPropagation()
+  elif ke.ctrlKey  || ke.metaKey || ke.altKey then
+    ()
+  else
+    ke.stopPropagation()
+
 let update msg model =
   match msg with
   | Msg.SelectCell i ->
@@ -117,29 +138,26 @@ let update msg model =
       updateNonEditKey ke model
 
 
-// open Sutil.DOM
-open Fable.Core.JsInterop
-
 let cellEditorPage dispatch (model: System.IObservable<Model>) =
   let focusStore = Store.make ()
   HtmlExt.recDivClass [ "cell-editor-page"; ""; "table-container"] [
+    DOM.attr("tabIndex","0")
+    Bindings.bindSub focusStore (fun ctx () ->
+      // Browser.Dom.console.log "parent focus"
+      ctx.ParentElement.focus()
+    )
+    onKeyDown (fun ke ->
+      Msg.NonEditKeyPress ke |> dispatch
+    ) []
+
     Html.div [
       Attr.className "table-container-title"
       text "An Input/Output Table"
     ]
     Html.div [ Attr.className "table-container-separator"]
     HtmlExt.recDivClass [ "table-container-content"; "table-content"] [
-      DOM.attr("tabIndex","0")
+      // DOM.attr("tabIndex","0")
 
-      onKeyDown (fun ke ->
-        Msg.NonEditKeyPress ke |> dispatch
-      ) []
-
-
-      Bindings.bindSub focusStore (fun ctx () ->
-        // Browser.Dom.console.log "parent focus"
-        ctx.ParentElement.focus()
-      )
 
 
       model
@@ -157,25 +175,7 @@ let cellEditorPage dispatch (model: System.IObservable<Model>) =
                 type' "text"
                 Attr.value (m.EditingStartingValue |> Option.defaultValue m.Values.[i])
                 autofocus2
-                onKeyDown (fun ke ->
-
-                  if ke.key = "Enter" || ke.key = "Tab" then
-                    // Browser.Dom.console.log ("Enter/Tab", ke)
-                    let loseFocus = updateActive (Some ke) m |> fst |> (fun m -> not m.Editing)
-                    (i, ke.target?value, Some ke) |> Msg.UpdateValue |> dispatch
-                    if loseFocus then DOM.rafu (fun () -> focusStore <~ ())
-                    ke.preventDefault()
-                    ke.stopPropagation()
-                  elif ke.key = "Escape" then
-                    // Browser.Dom.console.log ("Escape", ke)
-                    Msg.CancelEdit i |> dispatch
-                    DOM.rafu (fun () -> focusStore <~ ())
-                    ke.stopPropagation()
-                  elif ke.ctrlKey  || ke.metaKey || ke.altKey then
-                    ()
-                  else
-                    ke.stopPropagation()
-                ) []
+                onKeyDown (keyDownHandler m focusStore dispatch i) []
                 on "blur" (fun _ -> DOM.rafu (fun () -> Msg.DeferredCancelEdit i |> dispatch)) []
               ]
             else

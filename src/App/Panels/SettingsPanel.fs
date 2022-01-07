@@ -19,14 +19,17 @@ let themeSelector (themeStore: VirtualStore<bool>) =
     text "Theme:"
     Array.map2
       (fun i scoopChoice ->
-        Html.label [
+        Html.div[
             class' "radio"
             Html.input [
                 type' "radio"
                 Bindings.bindRadioGroup mappedObs
+                DOM.attr( "id", i)
                 i |> box |> Attr.value
             ]
-            Html.span [
+            Html.label [
+              class' "radio"
+              Attr.for' i
               text $" {scoopChoice}"
             ]
         ]

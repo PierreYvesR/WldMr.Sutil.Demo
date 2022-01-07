@@ -40,6 +40,16 @@
         border-top: 2px solid $border-color;
       }
 
+      &:focus-within {
+        outline: none;
+        border-color: $focus-border-color;
+      }
+      &:focus {
+        outline: none;
+        .cell-editor-cell-dormant-selected {
+          border-color: $wm-bg8-color;
+        }
+      }  
     }
   }
 
@@ -110,13 +120,6 @@
       border: 1px solid $wm-bg5-color;
     }
 
-    &:focus {
-      outline: none;
-      .cell-editor-cell-dormant-selected {
-        border-color: $wm-bg8-color;
-        // background-color: $wm-bg2-color;
-      }
-    }
   }
 
 }
