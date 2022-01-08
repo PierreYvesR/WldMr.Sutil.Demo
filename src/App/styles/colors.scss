@@ -20,6 +20,7 @@
 
     --wm-blue-intense-color: hsl(210, 45%, 60%);
     --wm-blue-color: hsl(210, 25%, 40%);
+    --wm-blue-muted-color: hsl(210, 28%, 25%);
   }
 }
 
@@ -44,6 +45,7 @@
 
   --wm-blue-intense-color: hsl(210, 45%, 60%);
   --wm-blue-color: hsl(210, 25%, 40%);
+  --wm-blue-muted-color: hsl(210, 28%, 25%);
 }
 
 @media (prefers-color-scheme: light) {
@@ -67,7 +69,8 @@
     --wm-bg11-color: rgb(30, 30, 30);
     --wm-blue-intense-color: hsl(210, 65%, 50%);
     --wm-blue-color: hsl(210, 55%, 60%);
-    }
+    --wm-blue-muted-color: hsl(209, 37%, 64%);
+  }
 }
 
 .light-theme {
@@ -90,6 +93,7 @@
   --wm-bg11-color: rgb(30, 30, 30);
   --wm-blue-intense-color: hsl(210, 65%, 50%);
   --wm-blue-color: hsl(210, 55%, 60%);
+  --wm-blue-muted-color: hsl(209, 37%, 64%);
 }
 
 
@@ -114,6 +118,10 @@ $wm-bg11-color: var(--wm-bg11-color);
 
 $focus-intense-border-color: var(--wm-blue-intense-color);
 $focus-border-color: var(--wm-blue-color);
+$focus-muted-border-color: var(--wm-blue-muted-color);
+
+
+// $focus-muted-border-color: hsl(211, 28%, 25%);
 
 
 

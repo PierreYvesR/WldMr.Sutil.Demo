@@ -18,6 +18,10 @@
     justify-content:center;
     border: 2px solid $border-color;
     border-radius: 6px;
+    &:focus-within {
+      border-color: $focus-muted-border-color;
+    }
+
 
     .table-container {
       border: 2px solid $border-color;

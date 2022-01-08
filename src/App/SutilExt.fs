@@ -182,3 +182,52 @@ module SutilExt =
       disposable.Dispose())
 
     sutilResult bindNode
+
+module Attr =
+  open Sutil.Attr
+  let onFocusout (fn : Browser.Types.FocusEvent -> unit) options =
+    on "focusout" (unbox fn) options
+
+  let onDblclick fn options =
+    on "dblclick" fn options
+
+  open DOM
+  open Fable.Core.JsInterop
+  let focus() : SutilElement =
+    nodeFactory <| fun ctx ->
+      let e = ctx.ParentElement
+      DOM.rafu (fun _ ->
+        e.focus()
+        e?setSelectionRange(99999,99999)
+      )
+      unitResult(ctx, "focus")
+
+  let autofocusWhenTrue b : SutilElement =
+    nodeFactory <| fun ctx ->
+      if b then
+        let e = ctx.ParentElement
+        DOM.rafu (fun _ ->
+          e.focus()
+          e?setSelectionRange(99999,99999)
+        )
+      unitResult(ctx, "autofocusWhenTrue")
+
+  let toggleClassName(classesWhenTrue, classesWhenFalse) b: SutilElement =
+    if b then
+      nodeFactory ( fun ctx ->
+        ctx.ParentElement |> removeFromClasslist classesWhenFalse
+        ctx.ParentElement |> addToClasslist classesWhenTrue
+        unitResult(ctx, "toggleClassName")
+      )
+    else
+      nodeFactory ( fun ctx ->
+        ctx.ParentElement |> removeFromClasslist classesWhenTrue
+        ctx.ParentElement |> addToClasslist classesWhenFalse
+        unitResult(ctx, "toggleClassName")
+      )
+
+module Iter =
+  open DOM
+
+  let eval (f: _ -> unit) v: SutilElement =
+    nodeFactory (fun ctx -> f v; unitResult(ctx, "Iter.eval"))

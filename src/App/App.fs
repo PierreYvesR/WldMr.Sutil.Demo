@@ -106,7 +106,8 @@ let update msg (model : Model) =
       let extraCmd =
         match extMsg with
         | MonacoEditorPage.ExternalMsg.NoOp -> Cmd.none
-        | MonacoEditorPage.ExternalMsg.SaveText s -> s |> TextStorage.Msg.SaveText |> TextStorageMsg |> Cmd.ofMsg
+        | MonacoEditorPage.ExternalMsg.SaveText s ->
+            s |> TextStorage.Msg.SaveText |> TextStorageMsg |> Cmd.ofMsg
       { model with MonacoEditorPage = subModel},
       Cmd.batch [subCmd |> Cmd.map MonacoEditorPageMsg; extraCmd]
 
@@ -142,12 +143,14 @@ let init () =
 
     Cmd.ofMsgDelayed 0. DispatchResizeEvent
     MonacoEditorPage.initCmd() |> Cmd.map MonacoEditorPageMsg
-    MonacoEditorPage.Msg.LoadText """{"Here": "is some json","anObj": {"a": [1,2,3,5,8,13]}}""" |> MonacoEditorPageMsg |> Cmd.ofMsg
+    let initialText = """{"Here": "is some json","anObj": {"a": [1,2,3,5,8,13]}}"""
+    MonacoEditorPage.Msg.LoadText initialText |> MonacoEditorPageMsg |> Cmd.ofMsg
     MonacoEditorPage.Msg.SaveEditor |> MonacoEditorPageMsg |> Cmd.ofMsg
     CellEditorPage.initCmd() |> Cmd.map CellEditorPageMsg
   ]
 
 let app () =
+  let focusStore = Store.make ()
   let model, dispatch = () |> Store.makeElmish init update ignore
 
   let umedia = MediaQuery.listenMedia "(prefers-color-scheme: light)" (ThemeIsLight >> dispatch)
@@ -203,11 +206,18 @@ let app () =
       ]
 
     [
-      MonacoEditorPage.monacoEditorPage (MonacoEditorPageMsg >> dispatch) (model .> fun m -> m.MonacoEditorPage) themeIsLight
+      model .> (fun m -> m.DisplayedPage) |=/=> (Iter.eval (fun _ -> focusStore <~ ()))
+
+      MonacoEditorPage.monacoEditorPage
+        (MonacoEditorPageMsg >> dispatch)
+        (model |> VirtualStore.ofStore (fun m -> m.MonacoEditorPage) ignore)
+        focusStore
+        themeIsLight
         |> makePage Page.MonacoEditorPage
       CellEditorPage.cellEditorPage
         (CellEditorPageMsg >> dispatch)
-        (model |> VirtualStore.ofStore (fun m -> m.CellEditorPage) (fun _ -> ()))
+        (model |> VirtualStore.ofStore (fun m -> m.CellEditorPage) ignore)
+        focusStore
         |> makePage Page.CellEditorPage
     ]
 

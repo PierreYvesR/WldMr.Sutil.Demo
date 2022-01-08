@@ -58,9 +58,12 @@ let update msg model =
       , Cmd.none, ExternalMsg.NoOp
 
 
-// themeIsLight should be a ReadOnlyStore<bool>
-let monacoEditorPage dispatch (model: System.IObservable<Model>) (themeIsLight: VirtualStore<bool>) =
+// themeIsLight and model should be ReadOnlyStore
+let monacoEditorPage dispatch (model: Store<Model>) focusStore (themeIsLight: Store<bool>) =
   HtmlExt.recDivClass [ "editor-page"; "editor-page-content"] [
+    focusStore |=> Iter.eval ( fun () ->
+      model.Value.Editor |> Option.iter ( fun e -> DOM.rafu (fun _ -> e.focus() ) )
+    )
     Html.div [
       Attr.className "editor-page-monaco-container"
       MonacoEditor.monacoEditor
