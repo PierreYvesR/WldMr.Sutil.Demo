@@ -198,7 +198,6 @@ module Attr =
       let e = ctx.ParentElement
       DOM.rafu (fun _ ->
         e.focus()
-        e?setSelectionRange(99999,99999)
       )
       unitResult(ctx, "focus")
 

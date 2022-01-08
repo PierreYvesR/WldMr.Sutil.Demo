@@ -25,6 +25,8 @@ type Msg =
   | FinishEdit of string * Browser.Types.KeyboardEvent
   | NonEditKeyDown of Browser.Types.KeyboardEvent
   | FocusOut of Browser.Types.FocusEvent
+  | AddRow
+  | DeleteSelectedRow
 
 let initState () =
   {
@@ -38,8 +40,9 @@ let initState () =
 let initCmd () =
   Cmd.none
 
+let private clamp length n = if n < 0 then 0 elif n>= length then length - 1 else n
+
 module UpdateFns =
-  let clamp length n = if n < 0 then 0 elif n>= length then length - 1 else n
 
   let updateEditKeyDown cycle (ke: Browser.Types.KeyboardEvent) model =
     let length = model.Values.Length
@@ -56,7 +59,9 @@ module UpdateFns =
 
   let updateNonEditKeyDown (ke: Browser.Types.KeyboardEvent) (model: Model) =
     let length = model.Values.Length
-    if ke.key = "PageUp" || (ke.key = "ArrowUp" && ke.ctrlKey) then
+    if ke.eventPhase = 3 then
+      model, Cmd.none
+    elif ke.key = "PageUp" || (ke.key = "ArrowUp" && ke.ctrlKey) then
       {model with Active = 0}, Cmd.none
     elif ke.key = "PageDown" || (ke.key = "ArrowDown" && ke.ctrlKey) then
       {model with Active = length - 1}, Cmd.none
@@ -89,6 +94,7 @@ module UpdateFns =
 
 
 let update msg model =
+  Browser.Dom.console.log ("update msg=", msg)
   match msg with
   | Msg.SelectCell i ->
       {model with Active = i; Editing = false}
@@ -109,6 +115,19 @@ let update msg model =
   | Msg.FocusOut fe ->
       model,
       UpdateFns.focusOutCmd fe
+
+  | Msg.AddRow ->
+      let newValues = Array.append model.Values [| "100." |]
+      let newLabels = Array.append model.Labels [| "new" |]
+      {model with Labels= newLabels; Values = newValues},
+      Cmd.none
+
+  | Msg.DeleteSelectedRow ->
+      let newValues = Array.removeAt model.Active model.Values
+      let newLabels = Array.removeAt model.Active model.Labels
+      let newActive = clamp newLabels.Length model.Active
+      {model with Labels= newLabels; Values = newValues; Active= newActive},
+      Cmd.none
 
 module SubParts =
   let editingCell dispatch model focusStore =
@@ -136,6 +155,8 @@ module SubParts =
       model .> (fun m -> $"grid-row-start: {m.Active+1}; grid-column-start: 2;") |=/=> Attr.style
       model .> (fun m -> m.EditingStartingValue |> Option.defaultValue m.Values.[m.Active]) |=/=> (fun v -> Attr.value v)
 
+      // that should accomplish the same thing, maybe a bit more efficient, certainly more error-prone
+      //
       // SutilExt.bindVirtual (model |> Observable.pairwiseOpt) (fun (old, m) ->
       //   [
       //     if old |> Option.forall (fun o -> o.Editing <> m.Editing) then
@@ -147,6 +168,7 @@ module SubParts =
       //   ] |> fragment
       // )
 
+      onClick ignore [StopPropagation]
       onKeyDown (keyDownHandler focusStore dispatch) []
     ]
 
@@ -176,18 +198,28 @@ module SubParts =
     ]
 
 // modelStore should be a ReadOnlyStore
-let cellEditorPage dispatch modelStore focusStore =
+let cellEditorPage dispatch (modelStore: Store<_>) focusStore =
   HtmlExt.recDivClass ["cell-editor-page"; ""] [
-    // onClick (fun _ -> Browser.Dom.console.log "ignoring") [PreventDefault; StopPropagation; StopImmediatePropagation]
-    onMouse "mousedown" ignore [PreventDefault] //; StopPropagation; StopImmediatePropagation]
+    onMouse "mousedown" ignore [PreventDefault; StopPropagation] // we don't want to lose focus to an empty part of the page
+    onClick (fun e ->
+      // Browser.Dom.console.log("onClick page", e.eventPhase)
+      Msg.CancelEdit |> dispatch
+      focusStore <~ ()
+    ) [PreventDefault; StopPropagation]
     HtmlExt.recDivClass ["table-container"] [
       attr("tabIndex", "0")
       focusStore |=> focus
 
-      onKeyDown (Msg.NonEditKeyDown >> dispatch) []
-      onFocusout (Msg.FocusOut >> dispatch) []
-      onClick (fun e -> Msg.CancelEdit |> dispatch) [StopPropagation]
-      onMouse "mousedown" ignore [StopPropagation]
+      onKeyDown (fun e -> Browser.Dom.console.log("onKeyDown container", e.eventPhase); e |> Msg.NonEditKeyDown |> dispatch) []
+      onFocusout (fun fe ->
+        // Browser.Dom.console.log("focusout container", fe.eventPhase)
+        fe |> Msg.FocusOut |> dispatch
+      ) []
+      onClick (fun e ->
+        // Browser.Dom.console.log("onClick container", e.eventPhase)
+        Msg.CancelEdit |> dispatch
+      ) [StopPropagation]
+      onMouse "mousedown" (fun e -> Browser.Dom.console.log("mousedown container", e.eventPhase)) [StopPropagation] // we don't let it bubble so that we don't lose focus
 
       SubParts.tableTtle ()
       Html.div [ Attr.className "table-container-separator"]
@@ -195,7 +227,21 @@ let cellEditorPage dispatch modelStore focusStore =
         SubParts.editingCell dispatch modelStore focusStore
 
         modelStore .> (fun m -> m.Labels.Length) |=/=> SubParts.cellGrid dispatch modelStore
-
+      ]
+      Html.div [
+        Attr.style "display: flex; justify-content: space-evenly; padding: 3px;"
+        Html.button [
+          Attr.className "wm-button"
+          text "Add row"
+          // onKeyDown ignore [StopPropagation]
+          onClick (fun _ -> Msg.AddRow |> dispatch) []
+        ]
+        Html.button [
+          Attr.className "wm-button"
+          text "Delete selected row"
+          // onKeyDown ignore [StopPropagation]
+          onClick (fun _ -> Msg.DeleteSelectedRow |> dispatch) []
+        ]
       ]
     ]
   ]

@@ -10,6 +10,7 @@ let shortcutPanel: Panels.Panel = {
     text "Shortcuts provided by "
     Html.a [
       Attr.href "https://github.com/jaywcjlove/hotkeys"
+      Attr.target "_blank"
       text "HotKeys.js"
     ]
     Html.dl [
@@ -30,6 +31,7 @@ let introPanel: Panels.Panel = {
     text "The text editor is "
     Html.a [
       Attr.href "https://github.com/microsoft/monaco-editor"
+      Attr.target "_blank"
       text "monaco-editor"
     ]
     text ", with all its features. Try "
