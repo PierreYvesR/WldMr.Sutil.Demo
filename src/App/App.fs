@@ -205,7 +205,9 @@ let app () =
     [
       MonacoEditorPage.monacoEditorPage (MonacoEditorPageMsg >> dispatch) (model .> fun m -> m.MonacoEditorPage) themeIsLight
         |> makePage Page.MonacoEditorPage
-      CellEditorPage.cellEditorPage (CellEditorPageMsg >> dispatch) (model .> fun m -> m.CellEditorPage)
+      CellEditorPage.cellEditorPage
+        (CellEditorPageMsg >> dispatch)
+        (model |> VirtualStore.ofStore (fun m -> m.CellEditorPage) (fun _ -> ()))
         |> makePage Page.CellEditorPage
     ]
 
