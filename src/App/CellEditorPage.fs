@@ -231,13 +231,13 @@ let cellEditorPage dispatch (modelStore: Store<_>) focusStore =
       Html.div [
         Attr.style "display: flex; justify-content: space-evenly; padding: 3px;"
         Html.button [
-          Attr.className "wm-button"
+          Attr.className "small-inline-button"
           text "Add row"
           // onKeyDown ignore [StopPropagation]
           onClick (fun _ -> Msg.AddRow |> dispatch) []
         ]
         Html.button [
-          Attr.className "wm-button"
+          Attr.className "small-inline-button"
           text "Delete selected row"
           // onKeyDown ignore [StopPropagation]
           onClick (fun _ -> Msg.DeleteSelectedRow |> dispatch) []

@@ -54,7 +54,7 @@ let private sideBarPanel dispatch (panel: Panels.Panel) (store: IStore<Model>) =
 let sideBar (panels: Panels.Panel list) (expandedIds: string list) =
   let allPanelsIds = panels |> List.map (fun p -> p.Id)
 
-  let store, dispatch = (expandedIds, allPanelsIds) |> Store.makeElmish init update ignore
+  let store, dispatch = (allPanelsIds, expandedIds) |> Store.makeElmish init update ignore
 
   HtmlExt.recDivClass ["sidebar-container"; "sidebar-scrollable-content"] [
     for p in panels do

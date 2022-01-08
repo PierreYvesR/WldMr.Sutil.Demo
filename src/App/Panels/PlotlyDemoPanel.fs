@@ -30,6 +30,7 @@ let plotlyDemoPanel zippedStore: Panels.Panel  =
       text " and "
       Html.a [ text "react-plotly.js"; Attr.href "https://github.com/plotly/react-plotly.js" ]
       text ")."
+      Html.div [ Attr.style "height: 2px;"]
       zippedStore
         =/=|> plotlyPanelChart
   ]}

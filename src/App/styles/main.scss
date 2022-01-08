@@ -59,12 +59,27 @@ kbd {
 }
 
 a {
-  color: hsl(202, 90%, 35%);
+  color: hsl(210, 60%, 45%);
+
+  border-radius: 2px;
+  &:visited {
+    color: hsl(202, 20%, 55%);
+  }
+
+  &:focus {
+    // outline-width: 1px;
+  // color: $wm-bg9-color;    
+    // outline: $focus-intense-border-color solid 2px;
+    outline: $wm-bg9-color solid 2px;
+    outline-offset: 0px;
+    // outline-style: double;
+  }
+
+  &:hover {
+    color: $wm-bg9-color;
+  }
 }
 
-a:visited {
-  color: hsl(202, 20%, 55%);
-}
 
 .wm-app-container {
   height: 100vh;
