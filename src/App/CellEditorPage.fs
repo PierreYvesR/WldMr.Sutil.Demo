@@ -148,6 +148,18 @@ let cellEditorPage dispatch (model: Store<Model>) =
       ctx.ParentElement.focus()
     )
     onKeyDown (fun ke -> Msg.NonEditKeyDown ke |> dispatch) []
+    on "focusout" (
+      fun e ->
+        let fe = e :?> Browser.Types.FocusEvent
+        let target = e.target :?> Browser.Types.Element
+        if fe.relatedTarget = null then
+          Msg.CancelEdit |> dispatch
+        else
+          let reTarget = fe.relatedTarget :?> Browser.Types.Element
+          if reTarget.contains(target) |> not && target.contains(reTarget) |> not then
+            Msg.CancelEdit |> dispatch
+    ) []
+    on "click" (fun e -> Msg.CancelEdit |> dispatch) []
 
     Html.div [
       Attr.className "table-container-title"
@@ -163,8 +175,18 @@ let cellEditorPage dispatch (model: Store<Model>) =
         model .> (fun m -> $"grid-row-start: {m.Active+1}; grid-column-start: 2;") |=/=> Attr.style
         model .> (fun m -> m.EditingStartingValue |> Option.defaultValue m.Values.[m.Active]) |=/=> (fun v -> Attr.value v)
 
+        // SutilExt.bindVirtual (model |> Observable.pairwiseOpt) (fun (old, m) ->
+        //   [
+        //     if old |> Option.forall (fun o -> o.Editing <> m.Editing) then
+        //       autofocusWhenTrue m.Editing
+        //       Attr.hidden (not m.Editing)
+        //       if m.Editing then
+        //         Attr.style $"grid-row-start: {m.Active+1}; grid-column-start: 2;"
+        //         Attr.value (m.EditingStartingValue |> Option.defaultValue m.Values.[m.Active])
+        //   ] |> fragment
+        // )
+
         onKeyDown (keyDownHandler focusStore dispatch) []
-        on "blur" (fun _ -> Msg.CancelEdit |> dispatch) []
       ]
 
       model .> (fun m -> m.Labels.Length)
@@ -181,7 +203,6 @@ let cellEditorPage dispatch (model: Store<Model>) =
               model .> (fun m -> m.Values.[i]) |=/=> text
               model .> (fun m -> m.Active = i) |=/=> toggleClassName("cell-editor-cell-dormant-selected", "")
 
-              // Bind.toggleClass(model .> (fun m -> m.Active = i), "cell-editor-cell-dormant-selected", "")
               on "dblclick" (fun _ -> Msg.StartEdit (i, None) |> dispatch) [StopPropagation; PreventDefault]
               onClick (fun _ -> Msg.SelectCell i |> dispatch) []
             ]

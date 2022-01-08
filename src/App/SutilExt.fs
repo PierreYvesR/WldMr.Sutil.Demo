@@ -141,3 +141,44 @@ module VirtualStore =
 
   let map (f: 'T -> 'U, invF: 'U -> 'T) (vStore: IVirtualStore<'T>): IVirtualStore<'U> =
       new VirtualStore<'U, _>($"Virtual-{vStore.Name}", vStore.Value, vStore, f, invF >> vStore.UpdateCallback)
+
+
+module Observable =
+  open System
+  let pairwiseOpt (source: IObservable<'T>) : IObservable<'T option * 'T> =
+    { new IObservable<_> with
+        member x.Subscribe(observer) =
+          let mutable lastArgs = None
+          source.Subscribe
+            { new Observable.BasicObserver<'T>() with
+                member _.Next(args2) =
+                  observer.OnNext (lastArgs,args2)
+                  lastArgs <- Some args2
+                member _.Error(e) = observer.OnError(e)
+                member _.Completed() = observer.OnCompleted() } }
+
+module SutilExt =
+  open System
+  open Sutil.DOM
+
+  let bindVirtual<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) = nodeFactory <| fun ctx ->
+    let mutable node = EmptyNode
+    let group = SutilNode.MakeGroup("bind",ctx.Parent,ctx.Previous)
+    let bindNode = GroupNode group
+
+    log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
+    ctx.AddChild bindNode
+
+    let bindCtx = { ctx with Parent = bindNode }
+    let disposable = store |> Store.subscribe (fun next ->
+      try
+        log($"bind: rebuild {group.Id} with {next}")
+        node <- build (next |> element) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
+      with
+      | x -> Logging.error $"Exception in bindo: {x.Message} parent {ctx.Parent} node {node.ToString()} node.Parent "
+    )
+    group.SetDispose ( fun () ->
+      log($"dispose: Bind.el: {group}")
+      disposable.Dispose())
+
+    sutilResult bindNode
