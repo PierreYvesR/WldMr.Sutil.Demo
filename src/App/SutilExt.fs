@@ -95,10 +95,14 @@ module VirtualStore =
         // Send every update. Use 'distinctUntilChanged' with fastEquals to get previous behaviour
         // Fable.Core.JS.console.log($"Update {model}, {_value} -> {newValue}")
         if newValue <> _value then
+            Browser.Dom.console.log("different")
             _value <- newValue
             if subscribers.Count > 0 then
                 subscribers.Values
                     |> Seq.iter (fun s -> s.OnNext(_value))
+        else
+
+          Browser.Dom.console.log("identical")
 
     member _.Subscribe(observer: IObserver<'T>): IDisposable =
         let id = uid

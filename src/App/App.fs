@@ -194,7 +194,13 @@ let app () =
       Panels.HelpPanels.shortcutPanel
       Panels.CheckpointsPanel.checkpointsPanel (LoadCheckpoint >> dispatch) (model .> (fun m -> m.TextStorage.Checkpoints))
       Panels.PlotlyDemoPanel.plotlyDemoPanel
-        (Store.zip themeIsLight (model .> (fun m -> m.CellEditorPage.Values |> Array.map (float) )))
+        (Store.zip themeIsLight (model .> (fun m ->
+          m.CellEditorPage.CellValues
+          |> Seq.skip (m.CellEditorPage.Dim.Col)
+          |> Seq.indexed
+          |> Seq.filter (fun (i, _) -> i % m.CellEditorPage.Dim.Col = 1)
+          |> Seq.map (snd >> float)
+          |> Seq.toArray)))
     ]
 
   let mainPages =

@@ -6,8 +6,9 @@ open SutilExt
 
 
 let private plotlyPanelChart obs =
-  let chartFun (theme, v) =
-    DemoChart.reactDemoChart theme [| 1.; 2.; 3.; 4.|] v
+  let chartFun (theme, v: float[]) =
+    let xs = Array.init v.Length (fun i -> i + 1 |> float)
+    DemoChart.reactDemoChart theme xs v
 
   Html.div [
     Attr.className "sidebar-panel-chart"
@@ -16,7 +17,7 @@ let private plotlyPanelChart obs =
 
 let panelId = "plotly-demo"
 
-let plotlyDemoPanel zippedStore: Panels.Panel  =
+let plotlyDemoPanel zippedStore: Panels.Panel =
   {
     Title= "Demo Plotly chart"; Id= panelId;
     Content= [
