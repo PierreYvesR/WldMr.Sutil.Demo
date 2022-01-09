@@ -1,8 +1,9 @@
 module App
 
 open Sutil
-open SutilExt
 open Sutil.Attr
+open SutilExt
+open SutilExt.Attr
 
 type DragTarget =
   | NoTarget
@@ -22,7 +23,10 @@ type Model = {
   MonacoEditorPage: MonacoEditorPage.Model
   CellEditorPage: CellEditorPage.Model
 
-  DisplayedPage: Page
+  // the bool is here so that we can keep the page the same
+  // while still being 'distinct'
+  // this way we can manage the focus consistently
+  DisplayedPage: Page * bool
 }
 with
   static member isDragging(m: Model) = m.DragTarget = PanelSplitter
@@ -30,7 +34,6 @@ with
 
 type Msg =
   | PanelDragStarted
-  | PanelDrag of Browser.Types.MouseEvent
   | PanelDragEnded
   | MouseUp
   | MouseMove of Browser.Types.MouseEvent
@@ -57,8 +60,11 @@ let update msg (model : Model) =
       if model |> Model.isDragging then Cmd.ofMsg PanelDragEnded else Cmd.none
 
   | MouseMove position ->
-      model,
-      if model |> Model.isDragging then Cmd.ofMsg (PanelDrag position) else Cmd.none
+      if model |> Model.isDragging then
+        { model with SidebarSize = position.pageX - 5. |> clamp 250. 750. }
+        , Cmd.ofMsg DispatchResizeEvent
+      else
+        model, Cmd.none
 
   | PanelDragStarted ->
       { model with DragTarget = PanelSplitter }
@@ -66,10 +72,6 @@ let update msg (model : Model) =
 
   | PanelDragEnded ->
       { model with DragTarget = NoTarget }
-      , Cmd.ofMsg DispatchResizeEvent
-
-  | PanelDrag position ->
-      { model with SidebarSize = position.pageX - 5. |> clamp 250. 750. }
       , Cmd.ofMsg DispatchResizeEvent
 
   | DispatchResizeEvent ->
@@ -118,7 +120,7 @@ let update msg (model : Model) =
       subCmd |> Cmd.map CellEditorPageMsg
 
   | ChangePage page ->
-      { model with DisplayedPage = page},
+      { model with DisplayedPage = (page, model.DisplayedPage |> snd |> not)},
       Cmd.none
 
 
@@ -130,12 +132,9 @@ let init () =
     TextStorage= TextStorage.init ()
     MonacoEditorPage= MonacoEditorPage.initState ()
     CellEditorPage= CellEditorPage.initState ()
-    DisplayedPage= Page.CellEditorPage
+    DisplayedPage= Page.CellEditorPage, true
   },
   Cmd.batch [
-    Cmd.move MouseMove
-    Cmd.ups MouseUp
-
     Hotkeys.Cmd.bindHotkey "alt+x" (Msg.ChangePage Page.CellEditorPage)
 
     Hotkeys.Cmd.bindHotkey "alt+t" (Msg.ChangePage Page.MonacoEditorPage)
@@ -174,14 +173,14 @@ let app () =
           [
             text "Text Editor "
             Html.span [
-              Attr.style "font-size: 10px;"
+              Attr.style "font-size: 12px;"
               Html.kbd "Alt"; text "+"; Html.kbd "T"
             ]
           ] |> DOM.fragment
           [
             text "Cell Editor "
             Html.span [
-              Attr.style "font-size: 10px;"
+              Attr.style "font-size: 12px;"
 
               Html.kbd "Alt"; text "+"; Html.kbd "X"
             ]
@@ -207,7 +206,7 @@ let app () =
     let makePage pageValue elt =
       Html.div [
         Attr.style "width:100%; height: 100%;"
-        Bind.attr("hidden", model .> (fun m -> m.DisplayedPage <> pageValue) |> Store.distinct)
+        Bind.attr("hidden", model .> (fun m -> (fst m.DisplayedPage) <> pageValue) |> Store.distinct)
         elt
       ]
 
@@ -228,10 +227,20 @@ let app () =
     ]
 
   HtmlExt.recDivClass [ "wm-app-container"; "wm-app-grid"] [
-    DOM.unsubscribeOnUnmount [ umedia]
+    DOM.unsubscribeOnUnmount [umedia]
     DOM.disposeOnUnmount [themeIsLight; model]
-    bindElement sidebarSize Attr.style
 
+    let mouseMoveHandler (e: Browser.Types.Event) = e :?> Browser.Types.MouseEvent |> MouseMove |> dispatch
+    let mouseUpHandler e = MouseUp |> dispatch
+
+    model .> (fun m -> m |> Model.isDragging) |=/=> (fun isDragging ->
+      [
+        isDragging |> enableOnMouse("mouseup", mouseUpHandler)
+        isDragging |> enableOnMouse("mousemove", mouseMoveHandler)
+      ] |> DOM.fragment
+    )
+
+    bindElement sidebarSize Attr.style
     Sidebar.sideBar panels [Panels.MainMenuPanel.panelId; Panels.PlotlyDemoPanel.panelId]
     resizeHBar()
 

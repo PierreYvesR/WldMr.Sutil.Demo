@@ -24,34 +24,62 @@
 
 
     .table-container {
-      border: 2px solid $border-color;
-      border-radius: 6px;
-      background-color: $wm-bg3-color;
+      border: 0px solid $wm-bg4-color;
+      border-radius: 8px;
+      background-color: $wm-bg4-color;
 
       .table-container-title {
         @include defaultTextColor;
-        border-radius: 4px;
+        border-radius: 8px 8px 0px 0px;
+        border-style: solid;
+        border-width: 2px 2px 0px 2px;
+        border-color: $wm-bg4-color;
         text-align: center;
         padding: 2px;
         background-color: $wm-bg2-color;
       }
 
       .table-container-content {
-        padding: 8px;
+        padding: 6px;
+        // border-radius: 0px 0px 8px 8px;
+        border-color: $wm-bg4-color;
+        border-width: 0px 2px 0px 2px;
+        border-style: solid;
       }
+      .table-container-bottom {
+        padding: 6px;
+        border-radius: 0px 0px 8px 8px;
+        border-color: $wm-bg4-color;
+        border-width: 0px 2px 2px 2px;
+        border-style: solid;
+        display: flex; justify-content: space-evenly; padding: 3px;
+      }
+
       .table-container-separator {
         height: 0px;
-        border-top: 2px solid $border-color;
+        // border-top: 2px solid $border-color;
       }
 
       &:focus-within {
-        outline: none;
-        border-color: $focus-border-color;
+        .table-container-title {
+          border-color: $focus-border-color;
+        }
+        .table-container-content {
+          border-color: $focus-border-color;
+        }
+        .table-container-bottom {
+          border-color: $focus-border-color;
+        }
       }
       &:focus {
         outline: none;
-        .cell-editor-cell-dormant-selected {
-          border-color: $wm-bg8-color;
+        .cell-selected {
+          border-color: $focus-intense-border-color;
+          background-color: $focus-intense-border-color;
+        }
+        .cell-selected:hover {
+          border-color: $focus-intense-border-color;
+          background-color: $focus-intense-border-color;
         }
       }  
     }
@@ -64,7 +92,7 @@
     @include defaultTextColor;
     
     display: grid;
-    border-radius: 5px;
+    border-radius: 6px;
     gap: 2px;
     grid-auto-rows: 24px;
     grid-template-columns: 120px 120px;
@@ -73,55 +101,92 @@
     background-color: $wm-bg5-color;
 
 
-    .cell-editor-cell-active {
-      font-size: 14px;
-      border-radius: 3px;
-      line-height: 18px;
-      padding: 2px 4px;
+    .cell-input-container {
+      border-radius: 4px;
+      padding: 1px;
 
-      color: $wm-bg11-color;
       border: 1px solid $wm-bg9-color;
-      background-color: $wm-bg0-color;
-      &:focus {
-        outline: none;
+      background-color: $wm-bg9-color;
+      .cell-input {
+        color: $wm-bg11-color;
+        box-sizing: border-box;
+        width: 100%;
+        line-height: 18px;
+        background-color: $wm-bg0-color;
+        border: 1px solid $wm-bg0-color;
+        border-radius: 2px;
+        padding: 0px 1px;
+        &:focus {
+          outline: none;
+        }
       }
     }
 
     .cell-editor-cell-dormant {
-      height: 18px;
-      font-size: 14px;
-      border-radius: 3px;
-      line-height: 18px;
-      padding: 2px 4px;
-      background-color: $wm-bg1-color;
+      overflow: hidden;
 
-      user-select: none;
-      
+      border-radius: 4px;
+      padding: 1px;
       border: 1px solid $wm-bg5-color;
-      &:hover {
-        // color: $wm-bg10-color;
-        border-color: $wm-bg7-color;
-        background-color: $wm-bg2-color;
+      background-color: $wm-bg1-color;
+      .cell-content {
+        box-sizing: border-box;
+        border: 1px solid $wm-bg1-color;
+        border-radius: 2px;
+        padding: 0px 1px;
+        height: 20px;
+        font-size: 14px;
+        line-height: 18px;
+        user-select: none;
+        overflow: hidden;
+        background-color: $wm-bg1-color;
       }
-      &-selected {
-        
-        padding: 0px 2px;
+      
+      &:hover {
+        background-color: $wm-bg7-color;
+        .cell-content {
+          background-color: $wm-bg2-color;
+          border-color: $wm-bg2-color;
+        }
+      }
+      &.cell-selected {
         border-color: $wm-bg6-4-color;
-        border-width: 3px;
-        
+        background-color: $wm-bg6-4-color;
+      }
+      &.cell-selected:hover {
+        border-color: $wm-bg7-color;
+        background-color: $wm-bg7-color;
       }
     }
 
+    .cell-readonly {
+      background-color: $wm-bg2-color;
+      .cell-content {
+        border-color: $wm-bg2-color;
+        background-color: $wm-bg2-color;
+      }
+    }
     .cell-editor-cell-inactive {
       height: 18px;
       font-size: 14px;
-      border-radius: 3px;
+      border-radius: 4px;
       line-height: 18px;
-      padding: 2px 4px;
+      padding: 2px 3px;
       background-color: $wm-bg2-color;
       text-align: right;
 
       border: 1px solid $wm-bg5-color;
+      &.cell-selected {
+        border-color: $wm-bg6-4-color;
+      }
+      &.cell-selected:hover {
+        border-color: $wm-bg7-color;
+        background-color: $wm-bg7-color;
+        .cell-content {
+          background-color: $wm-bg2-color;
+          border-color: $wm-bg2-color;
+        }
+      }
     }
 
   }

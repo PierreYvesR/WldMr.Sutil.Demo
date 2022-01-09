@@ -79,7 +79,11 @@ let monacoEditorPage dispatch (model: Store<Model>) focusStore (themeIsLight: St
       Attr.className "editor-page-control-bar"
       Html.button [
         Attr.className "wm-button"
-        Html.text "Save"
+        Html.text "Save "
+        Html.span [
+          Attr.style "font-size: 12px;"
+          Html.kbd "Ctrl"; text "+"; Html.kbd "S"
+        ]
         onClick (fun _ -> dispatch Msg.SaveEditor) []
       ]
       Html.span [

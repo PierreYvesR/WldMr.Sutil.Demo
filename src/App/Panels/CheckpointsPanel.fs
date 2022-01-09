@@ -24,11 +24,14 @@ let checkpointsPanel (loadItemCallback) (checkpointsObs: IObservable<TextStorage
         on "change" ( fun e ->
           let value: string = e?target?value
           loadItemCallback (value |> int)
-          e?target?value <- ""
+          e?target?value <- "-1"
         ) []
         Html.option [
           Attr.selected true
+          Attr.disabled true
           Attr.hidden true
+          Attr.value  "-1"
+          text "select a version to load"
         ]
         choices ()
       ]

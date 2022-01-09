@@ -34,7 +34,7 @@ let sideBarPanel (panel: Panel) (isExpandedStore: IVirtualStore<bool>) =
       ]
       Html.button [
         Attr.className "sidebar-panel-header-options"
-        onClick (fun _ -> Browser.Dom.console.log("gear")) [StopPropagation]
+        onClick ignore [StopPropagation]
         Html.div [
           Attr.className "codicon codicon-gear"
         ]

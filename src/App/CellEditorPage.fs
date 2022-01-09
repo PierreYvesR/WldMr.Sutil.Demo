@@ -15,7 +15,6 @@ type EditablePredicate =
     p: int -> int -> bool
   }
   override this.Equals other =
-    Browser.Dom.console.log("equality ?", (other = this))
     other = this
 
 
@@ -66,7 +65,6 @@ type Msg =
   | CancelEdit
   | FinishEdit of string * Browser.Types.KeyboardEvent
   | NonEditKeyDown of Browser.Types.KeyboardEvent
-  | FocusOut of Browser.Types.FocusEvent
   | AddRow
   | DeleteSelectedRow
 
@@ -107,7 +105,7 @@ module UpdateFns =
     elif ke.key = "PageUp" || (ke.key = "ArrowUp" && ke.ctrlKey) then
       {model with Active = model.Active |> CellPos.setRow 0}, Cmd.none
     elif ke.key = "PageDown" || (ke.key = "ArrowDown" && ke.ctrlKey) then
-      {model with Active = model.Active |> CellPos.setRow dim.Row}, Cmd.none
+      {model with Active = model.Active |> CellPos.setRow (dim.Row - 1)}, Cmd.none
     elif ke.key = "ArrowUp" then
       {model with Active = model.Active |> CellPos.plusRow -1 |> CellPos.clamp dim}, Cmd.none
     elif ke.key = "ArrowDown" then
@@ -119,29 +117,29 @@ module UpdateFns =
     elif ke.key = "Enter" then
       model |> updateEditKeyDown true ke
       ,Cmd.none
-    elif ke.key = "F2" then
-      model,
-      Cmd.ofMsg (Msg.StartEdit (model.Active, None))
-    elif ke.key.Length = 1 && (not (ke.ctrlKey || ke.altKey || ke.metaKey)) then
-      model,
-      Cmd.ofMsg (Msg.StartEdit (model.Active, Some ke.key))
+    elif model.isEditable model.Active then
+      if ke.key = "F2" then
+        model,
+        Cmd.ofMsg (Msg.StartEdit (model.Active, None))
+      elif ke.key.Length = 1 && (not (ke.ctrlKey || ke.altKey || ke.metaKey)) then
+        model,
+        Cmd.ofMsg (Msg.StartEdit (model.Active, Some ke.key))
+      else
+        model, Cmd.none
     else
       model, Cmd.none
 
-  let focusOutCmd (fe: Browser.Types.FocusEvent) =
+  let focusOutHandler dispatch (fe: Browser.Types.FocusEvent) =
     let target = fe.target :?> Browser.Types.Element
     if fe.relatedTarget = null then
-      Msg.CancelEdit |> Cmd.ofMsg
+      Msg.CancelEdit |> dispatch
     else
       let reTarget = fe.relatedTarget :?> Browser.Types.Element
       if reTarget <> null && (reTarget.contains(target) |> not) && (target.contains(reTarget) |> not) then
-        Msg.CancelEdit |> Cmd.ofMsg
-      else
-        Cmd.none
+        Msg.CancelEdit |> dispatch
 
 
 let update msg model =
-  Browser.Dom.console.log("update", model)
   match msg with
   | Msg.SelectCell i ->
       {model with Active = i; Editing = false}
@@ -160,9 +158,6 @@ let update msg model =
       {model with Editing = false }, Cmd.none
   | Msg.NonEditKeyDown ke ->
       UpdateFns.updateNonEditKeyDown ke model
-  | Msg.FocusOut fe ->
-      model,
-      UpdateFns.focusOutCmd fe
 
   | Msg.AddRow ->
       let newValues = Array.append model.CellValues [| ""; "0." |]
@@ -200,29 +195,35 @@ module SubParts =
       else
         ke.stopPropagation()
 
-    Html.input [
-      Attr.className "cell-editor-cell-active"
-      type' "text"
+    Html.div [
+      Attr.className "cell-input-container"
 
-      // model .> (fun m -> m.Editing) |=/=> (fun editing -> [autofocusWhenTrue editing; Attr.hidden (not editing)] |> fragment)
-      // model .> (fun m -> $"grid-row-start: {m.Active.Row+1}; grid-column-start: {m.Active.Col+1};") |=/=> Attr.style
-      // model .> (fun m -> m.EditingStartingValue |> Option.defaultValue (m.getValue(m.Active))) |=/=> (fun v -> Attr.value v)
+      model .> (fun m -> not m.Editing) |=/=> Attr.hidden
+      model .> (fun m -> $"grid-row-start: {m.Active.Row+1}; grid-column-start: {m.Active.Col+1};") |=/=> Attr.style
+      Html.input [
+        Attr.className "cell-input"
+        type' "text"
 
-      // that should accomplish the same thing, maybe a bit more efficient, certainly more error-prone, (later-on) actually...
-      //
-      SutilExt.bindVirtual (model |> Observable.pairwiseOpt) (fun (old, m) ->
-        [
-          if old |> Option.forall (fun o -> o.Editing <> m.Editing) then
-            autofocusWhenTrue m.Editing
-            Attr.hidden (not m.Editing)
-            if m.Editing then
-              Attr.style $"grid-row-start: {m.Active.Row+1}; grid-column-start: {m.Active.Col+1};"
-              Attr.value (m.EditingStartingValue |> Option.defaultValue (m.getValue m.Active))
-        ] |> fragment
-      )
+        // model .> (fun m -> m.Editing) |=/=> (fun editing -> [autofocusWhenTrue editing; Attr.hidden (not editing)] |> fragment)
+        // model .> (fun m -> $"grid-row-start: {m.Active.Row+1}; grid-column-start: {m.Active.Col+1};") |=/=> Attr.style
+        // model .> (fun m -> m.EditingStartingValue |> Option.defaultValue (m.getValue(m.Active))) |=/=> (fun v -> Attr.value v)
 
-      onClick ignore [StopPropagation]
-      onKeyDown (keyDownHandler focusStore dispatch) []
+        // that should accomplish the same thing, maybe a bit more efficient, certainly more error-prone, (later-on) actually...
+        //
+        SutilExt.bindVirtual (model |> Observable.pairwiseOpt) (fun (old, m) ->
+          [
+            if old |> Option.forall (fun o -> o.Editing <> m.Editing) then
+              autofocusWhenTrue m.Editing
+              // Attr.hidden (not m.Editing)
+              if m.Editing then
+                // Attr.style $"grid-row-start: {m.Active.Row+1}; grid-column-start: {m.Active.Col+1};"
+                Attr.value (m.EditingStartingValue |> Option.defaultValue (m.getValue m.Active))
+          ] |> fragment
+        )
+
+        onClick ignore [StopPropagation]
+        onKeyDown (keyDownHandler focusStore dispatch) []
+      ]
     ]
 
   let cellGrid dispatch (modelStore: Store<Model>) (dim: CellPos) =
@@ -231,13 +232,14 @@ module SubParts =
         for j = 0 to dim.Col - 1 do
           let pos = {Row= i; Col= j}
           Html.div [
-            if modelStore.Value.isEditable pos then
-              Attr.className "cell-editor-cell-dormant"
-            else
-              Attr.className "cell-editor-cell-inactive"
+            Attr.className "cell-editor-cell-dormant"
+            if modelStore.Value.isEditable pos |> not then
+              Attr.className "cell-readonly"
             modelStore .> (fun m -> m.Active = pos && m.Editing) |=/=> Attr.hidden
-            modelStore .> (fun m -> m.getValue(pos)) |=/=> text
-            modelStore .> (fun m -> m.Active = pos) |=/=> toggleClassName("cell-editor-cell-dormant-selected", "")
+            HtmlExt.recDivClass ["cell-content"] [
+              modelStore .> (fun m -> m.getValue(pos)) |=/=> text
+            ]
+            modelStore .> (fun m -> m.Active = pos) |=/=> toggleClassName("cell-selected", "")
 
             onClick (fun _ -> Msg.SelectCell pos |> dispatch) []
             if modelStore.Value.isEditable pos then
@@ -251,12 +253,28 @@ module SubParts =
       text "An Input/Output Table"
     ]
 
+  let bottomButtons dispatch =
+    Html.div [
+      Attr.className "table-container-bottom"
+      Html.button [
+        Attr.className "small-inline-button"
+        text "Add row"
+        onClick (fun _ -> Msg.AddRow |> dispatch) []
+      ]
+      Html.button [
+        Attr.className "small-inline-button"
+        text "Delete selected row"
+        onClick (fun _ -> Msg.DeleteSelectedRow |> dispatch) []
+      ]
+    ]
+
+
 // modelStore should be a ReadOnlyStore
 let cellEditorPage dispatch (modelStore: Store<_>) focusStore =
   HtmlExt.recDivClass ["cell-editor-page"; ""] [
     onMouse "mousedown" ignore [PreventDefault; StopPropagation] // we don't want to lose focus to an empty part of the page
     onClick (fun e ->
-      Msg.CancelEdit |> dispatch
+      if modelStore.Value.Editing then Msg.CancelEdit |> dispatch
       focusStore <~ ()
     ) [PreventDefault; StopPropagation]
 
@@ -265,31 +283,16 @@ let cellEditorPage dispatch (modelStore: Store<_>) focusStore =
       focusStore |=> focus
 
       onKeyDown (Msg.NonEditKeyDown >> dispatch) []
-      onFocusout (Msg.FocusOut >> dispatch) []
-      onClick (fun _ -> Msg.CancelEdit |> dispatch ) [StopPropagation]
+      onFocusout (UpdateFns.focusOutHandler dispatch) []
+      onClick (fun _ -> if modelStore.Value.Editing then Msg.CancelEdit |> dispatch ) [StopPropagation]
       onMouse "mousedown" ignore [StopPropagation] // we don't let it bubble so that we don't lose focus
 
       SubParts.tableTtle ()
       Html.div [ Attr.className "table-container-separator"]
       HtmlExt.recDivClass [ "table-container-content"; "table-content"] [
         SubParts.editingCell dispatch modelStore focusStore
-
         modelStore .> (fun m -> m.Dim) |=/=> SubParts.cellGrid dispatch modelStore
       ]
-      Html.div [
-        Attr.style "display: flex; justify-content: space-evenly; padding: 3px;"
-        Html.button [
-          Attr.className "small-inline-button"
-          text "Add row"
-          // onKeyDown ignore [StopPropagation]
-          onClick (fun _ -> Msg.AddRow |> dispatch) []
-        ]
-        Html.button [
-          Attr.className "small-inline-button"
-          text "Delete selected row"
-          // onKeyDown ignore [StopPropagation]
-          onClick (fun _ -> Msg.DeleteSelectedRow |> dispatch) []
-        ]
-      ]
+      SubParts.bottomButtons dispatch
     ]
   ]

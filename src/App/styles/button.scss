@@ -21,6 +21,7 @@
   font-size: 12px;
   font-family: 'Spartan', sans-serif;
   border-radius: 6px;
+  user-select: none;
 
   @include defaultTextColor;
   background-color: transparent;

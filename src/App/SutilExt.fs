@@ -95,14 +95,10 @@ module VirtualStore =
         // Send every update. Use 'distinctUntilChanged' with fastEquals to get previous behaviour
         // Fable.Core.JS.console.log($"Update {model}, {_value} -> {newValue}")
         if newValue <> _value then
-            Browser.Dom.console.log("different")
             _value <- newValue
             if subscribers.Count > 0 then
                 subscribers.Values
                     |> Seq.iter (fun s -> s.OnNext(_value))
-        else
-
-          Browser.Dom.console.log("identical")
 
     member _.Subscribe(observer: IObserver<'T>): IDisposable =
         let id = uid
@@ -228,6 +224,18 @@ module Attr =
         ctx.ParentElement |> addToClasslist classesWhenFalse
         unitResult(ctx, "toggleClassName")
       )
+
+  let enableOnMouse(event: string, handler) b =
+    nodeFactory <| fun ctx ->
+      Browser.Dom.console.log("in enableOnMouse", event)
+      if b then
+        Browser.Dom.console.log("registering onMouse", event)
+        Interop.Window.addEventListener( event, handler )
+      else
+        Browser.Dom.console.log("unregistering onMouse", event)
+        Interop.Window.removeEventListener(event, handler) |> ignore
+      unitResult(ctx,$"enableOnMouse {event}")
+
 
 module Iter =
   open DOM

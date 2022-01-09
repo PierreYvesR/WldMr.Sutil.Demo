@@ -43,7 +43,7 @@ let update msg (model: Model) =
       , Cmd.none
 
 
-let private sideBarPanel dispatch (panel: Panels.Panel) (store: IStore<Model>) =
+let private makeSideBarPanel dispatch (panel: Panels.Panel) (store: IStore<Model>) =
   let isExpanded =
     store
     |> VirtualStore.ofStore (Model.isExpanded panel.Id) ( fun _ -> Msg.Toggle panel.Id |> dispatch)
@@ -58,5 +58,5 @@ let sideBar (panels: Panels.Panel list) (expandedIds: string list) =
 
   HtmlExt.recDivClass ["sidebar-container"; "sidebar-scrollable-content"] [
     for p in panels do
-      yield store |> sideBarPanel dispatch p
+      yield store |> makeSideBarPanel dispatch p
   ]
