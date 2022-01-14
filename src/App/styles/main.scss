@@ -4,6 +4,7 @@
 @use "button";
 @use "sidebar";
 @use "select";
+@use "treeview";
 @use "colors" as *;
 
 @import '@vscode/codicons/dist/codicon.css';
@@ -68,12 +69,8 @@ a {
   }
 
   &:focus {
-    // outline-width: 1px;
-  // color: $wm-bg9-color;    
-    // outline: $focus-intense-border-color solid 2px;
     outline: $wm-bg9-color solid 2px;
     outline-offset: 0px;
-    // outline-style: double;
   }
 
   &:hover {

@@ -10,6 +10,7 @@
     <Compile Include="Libs/MonacoEditor.fs" />
     <Compile Include="Libs/HotkeysJs.fs" />
     <Compile Include="Libs/Hotkeys.fs" />
+    <Compile Include="Components/TreeView.fs" />
     <Compile Include="TextStorage.fs" />
     <Compile Include="Panels/Panel.fs" />
     <Compile Include="Panels/SettingsPanel.fs" />
@@ -18,6 +19,7 @@
     <Compile Include="Panels/HelpPanels.fs" />
     <Compile Include="Panels/CheckpointsPanel.fs" />
     <Compile Include="Panels/MainMenuPanel.fs" />
+    <Compile Include="Panels/TreeViewPanel.fs" />
     <Compile Include="Sidebar.fs" />
     <Compile Include="CellEditorPage.fs" />
     <Compile Include="MonacoEditorPage.fs" />

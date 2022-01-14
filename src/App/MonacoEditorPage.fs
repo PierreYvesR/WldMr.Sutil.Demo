@@ -20,6 +20,7 @@ type Model =
   }
   static member charCount(m: Model) = m.CharCount
 
+[<RequireQualifiedAccess>]
 type ExternalMsg =
   | NoOp
   | SaveText of string

@@ -1,0 +1,39 @@
+@use "colors" as *;
+
+
+.treeview-container {
+  height: 250px;
+  overflow-y: scroll;
+  padding-right: 2px;
+  background-color: $wm-bg2-color;
+  border-radius: 4px;
+}
+
+.treeview-item-container {
+  user-select: none;
+  display: flex;
+  flex-direction: row;
+  &:hover {
+    color: $wm-bg10-color;
+    background-color: $wm-bg6-color;
+  }
+  border-radius: 4px;
+  padding: 1px;
+
+}
+
+
+.treeview-item-leaf-offset{
+  width: 16px;
+}
+.treeview-item-leaf {
+  // padding-block: 1px;
+}
+
+.treeview-item-parent {
+  // padding-block: 1px;
+}
+
+.treeview-children {
+  padding-left: 16px;
+}

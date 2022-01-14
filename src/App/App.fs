@@ -139,7 +139,6 @@ let init () =
 
     Hotkeys.Cmd.bindHotkey "alt+t" (Msg.ChangePage Page.MonacoEditorPage)
 
-
     Cmd.ofMsgDelayed 0. DispatchResizeEvent
     MonacoEditorPage.initCmd() |> Cmd.map MonacoEditorPageMsg
     let initialText = """{"Here": "is some json","anObj": {"a": [1,2,3,5,8,13]}}"""
@@ -147,6 +146,18 @@ let init () =
     MonacoEditorPage.Msg.SaveEditor |> MonacoEditorPageMsg |> Cmd.ofMsg
     CellEditorPage.initCmd() |> Cmd.map CellEditorPageMsg
   ]
+
+type Tree =
+  {
+    Key: string
+    Value: string
+    Children: Tree list
+  }
+  with
+    static member children (t: Tree) = t.Children
+    static member value (t: Tree) = t.Value
+    static member key (t: Tree) = t.Key
+    static member withElement f (t:Tree)= (t, Tree.children, Tree.value >> f, Tree.key)
 
 let app () =
   let focusStore = Store.make ()
@@ -165,6 +176,23 @@ let app () =
       onMouse "mousedown" (fun _ -> dispatch PanelDragStarted) [PreventDefault]
       Html.div [ ]
     ]
+
+  let tree =
+    {
+      Key= "Folder"; Value= "Folder"
+      Children= [
+        {Key= "File1"; Value= "File1"; Children=[]}
+        {Key= "File2"; Value= "File2"; Children=[]}
+        {
+          Key= "SubFolder"; Value= "SubFolder"
+          Children= [
+            {Key= "File3"; Value= "File3"; Children=[]}
+            {Key= "File4"; Value= "File4"; Children=[]}
+          ]
+        }
+      ]
+
+    }
 
   let panels =
     [
@@ -200,6 +228,7 @@ let app () =
           |> Seq.filter (fun (i, _) -> i % m.CellEditorPage.Dim.Col = 1)
           |> Seq.map (snd >> float)
           |> Seq.toArray)))
+      Panels.TreeViewPanel.treeViewPanel ignore (tree |> Tree.withElement text)
     ]
 
   let mainPages =
@@ -241,7 +270,7 @@ let app () =
     )
 
     bindElement sidebarSize Attr.style
-    Sidebar.sideBar panels [Panels.MainMenuPanel.panelId; Panels.PlotlyDemoPanel.panelId]
+    Sidebar.sideBar panels [Panels.MainMenuPanel.panelId; Panels.TreeViewPanel.panelId]
     resizeHBar()
 
     mainPages |> DOM.fragment

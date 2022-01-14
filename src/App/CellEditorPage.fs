@@ -9,14 +9,11 @@ open SutilExt.Attr
 
 let private clamp length n = if n < 0 then 0 elif n>= length then length - 1 else n
 
-[<CustomEquality; NoComparison>]
+[<ReferenceEquality>]
 type EditablePredicate =
   {
     p: int -> int -> bool
   }
-  override this.Equals other =
-    other = this
-
 
 type CellPos =
   {Row: int; Col: int}
