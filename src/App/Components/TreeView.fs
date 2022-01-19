@@ -4,6 +4,7 @@ open Sutil
 open Sutil.Attr
 
 open SutilExt
+open SutilExt.Attr
 
 type NodeId = string
 
@@ -76,7 +77,7 @@ let treeView
           ]
           Html.div [
             Attr.className "treeview-children"
-            model .> (Model.isExpanded key >> not) |=/=> Attr.hidden
+            model .> (Model.isExpanded key >> not) |=/=> hiddenFixed
             children
             |> List.map (fun t ->
               treeViewElt dispatch model t
