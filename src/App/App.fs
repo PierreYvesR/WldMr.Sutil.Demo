@@ -235,7 +235,8 @@ let app () =
     let makePage pageValue elt =
       Html.div [
         Attr.style "width:100%; height: 100%;"
-        Bind.attr("hidden", model .> (fun m -> (fst m.DisplayedPage) <> pageValue) |> Store.distinct)
+        model .> (fun m -> (fst m.DisplayedPage) <> pageValue) |=/=> hiddenFixed
+        // Bind.attr("hidden", model .> (fun m -> (fst m.DisplayedPage) <> pageValue) |> Store.distinct)
         elt
       ]
 

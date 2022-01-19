@@ -1,6 +1,7 @@
 namespace SutilExt
 
 open Sutil
+open Browser.Types
 
 [<AutoOpen>]
 module Operator =
@@ -235,6 +236,30 @@ module Attr =
         Browser.Dom.console.log("unregistering onMouse", event)
         Interop.Window.removeEventListener(event, handler) |> ignore
       unitResult(ctx,$"enableOnMouse {event}")
+
+
+  let setBoolAttribute (el: HTMLElement) (name: string) (value: bool) =
+    if value then
+      el.setAttribute( name, "" )
+    else
+      el.removeAttribute( name )
+
+  let hiddenFixed (b: bool): SutilElement =
+    nodeFactory <| fun ctx ->
+    let parent = ctx.Parent.AsDomNode
+    let name = "hidden"
+    try
+        let e = parent :?> HTMLElement
+
+        setBoolAttribute e name b
+
+        match ctx.StyleSheet with
+        | Some namedSheet ->
+            applyCustomRules namedSheet e
+        | None -> ()
+
+    with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A %f %s" name parent parent.nodeType (parent :?> HTMLElement).tagName)
+    unitResult(ctx, "hiddenFoxed")
 
 
 module Iter =

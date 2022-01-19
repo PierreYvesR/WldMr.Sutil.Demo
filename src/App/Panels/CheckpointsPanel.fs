@@ -3,6 +3,7 @@ open System
 
 open Sutil
 open Sutil.Attr
+open SutilExt.Attr
 
 open Fable.Core.JsInterop
 
@@ -29,7 +30,7 @@ let checkpointsPanel (loadItemCallback) (checkpointsObs: IObservable<TextStorage
         Html.option [
           Attr.selected true
           Attr.disabled true
-          Attr.hidden true
+          hiddenFixed true
           Attr.value  "-1"
           text "select a version to load"
         ]

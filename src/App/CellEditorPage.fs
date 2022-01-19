@@ -195,13 +195,13 @@ module SubParts =
     Html.div [
       Attr.className "cell-input-container"
 
-      model .> (fun m -> not m.Editing) |=/=> Attr.hidden
+      model .> (fun m -> not m.Editing) |=/=> hiddenFixed
       model .> (fun m -> $"grid-row-start: {m.Active.Row+1}; grid-column-start: {m.Active.Col+1};") |=/=> Attr.style
       Html.input [
         Attr.className "cell-input"
         type' "text"
 
-        // model .> (fun m -> m.Editing) |=/=> (fun editing -> [autofocusWhenTrue editing; Attr.hidden (not editing)] |> fragment)
+        // model .> (fun m -> m.Editing) |=/=> (fun editing -> [autofocusWhenTrue editing; hiddenFixed (not editing)] |> fragment)
         // model .> (fun m -> $"grid-row-start: {m.Active.Row+1}; grid-column-start: {m.Active.Col+1};") |=/=> Attr.style
         // model .> (fun m -> m.EditingStartingValue |> Option.defaultValue (m.getValue(m.Active))) |=/=> (fun v -> Attr.value v)
 
@@ -211,7 +211,7 @@ module SubParts =
           [
             if old |> Option.forall (fun o -> o.Editing <> m.Editing) then
               autofocusWhenTrue m.Editing
-              // Attr.hidden (not m.Editing)
+              // hiddenFixed (not m.Editing)
               if m.Editing then
                 // Attr.style $"grid-row-start: {m.Active.Row+1}; grid-column-start: {m.Active.Col+1};"
                 Attr.value (m.EditingStartingValue |> Option.defaultValue (m.getValue m.Active))
@@ -232,7 +232,7 @@ module SubParts =
             Attr.className "cell-editor-cell-dormant"
             if modelStore.Value.isEditable pos |> not then
               Attr.className "cell-readonly"
-            modelStore .> (fun m -> m.Active = pos && m.Editing) |=/=> Attr.hidden
+            modelStore .> (fun m -> m.Active = pos && m.Editing) |=/=> hiddenFixed
             HtmlExt.recDivClass ["cell-content"] [
               modelStore .> (fun m -> m.getValue(pos)) |=/=> text
             ]
